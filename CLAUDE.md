@@ -4,7 +4,7 @@ Cloudflare Pages + Jekyll + Chirpy テーマで構築された個人ブログ
 
 ## サイト情報
 
-- **URL**: https://chronicle.pages.dev/
+- **URL**: https://chronicle-969.pages.dev/
 - **リポジトリ**: https://github.com/junichiro/chronicle
 - **ホスティング**: Cloudflare Pages
 - **テーマ**: [Chirpy](https://github.com/cotes2020/jekyll-theme-chirpy)
@@ -152,7 +152,7 @@ git commit -m "Draft: 新しい記事"
 git push -u origin draft/my-new-post
 
 # → 自動でプレビューURLが発行される
-# 例: https://draft-my-new-post.chronicle.pages.dev/
+# 例: https://draft-my-new-post.chronicle-969.pages.dev/
 
 # 4. 確認後、mainにマージして公開
 git checkout main
@@ -252,7 +252,7 @@ graph LR
 title: Chronicle              # サイトタイトル
 tagline: Personal Tech Blog   # サブタイトル
 description: 技術と日常の記録  # サイト説明
-url: "https://chronicle.pages.dev"
+url: "https://chronicle-969.pages.dev"
 baseurl: ""
 lang: ja-JP
 timezone: Asia/Tokyo
