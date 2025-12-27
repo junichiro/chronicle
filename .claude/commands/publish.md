@@ -1,60 +1,73 @@
-# Chronicle 記事公開
+---
+description: ドラフト記事をレビュー後、mainブランチにマージして公開する
+---
 
-ドラフトブランチの記事をレビューし、mainブランチにマージして公開します。
+# /publish コマンド
+
+このコマンドは、ドラフト記事をレビューし、問題がなければ main ブランチにマージして公開します。
 
 ## 実行手順
 
-1. **現在のブランチを確認**
-   ```bash
-   git branch --show-current
-   git status
-   ```
+### 1. 現在のブランチ確認
 
-2. **ドラフトブランチにいることを確認**
-   - `draft/` で始まるブランチであること
-   - mainの場合は処理を中止
+```bash
+git branch --show-current
+```
 
-3. **article-reviewer サブエージェントでレビュー**
-   - `_posts/` 内の記事ファイルを読み込み
-   - 品質チェックを実施
-   - 改善提案を提示
+draft/ ブランチにいることを確認。main ブランチにいる場合は、公開対象のドラフトブランチを確認してください。
 
-4. **レビュー結果をユーザーに報告**
-   - 必須修正があれば対応
-   - 公開可否を確認
+### 2. 記事のレビュー
 
-5. **公開処理**
-   ```bash
-   # mainに切り替え
-   git checkout main
-   git pull origin main
+`article-reviewer` サブエージェントを使用して、記事の品質チェックを行ってください。
 
-   # ドラフトブランチをマージ
-   git merge draft/SLUG
+チェック項目：
+- Front matter の正確性
+- Markdown 構文の有効性
+- コード例の正確性
+- 日本語の品質
+- 構成と流れ
 
-   # プッシュ
-   git push origin main
+### 3. レビュー結果の報告
 
-   # ドラフトブランチを削除
-   git branch -d draft/SLUG
-   git push origin --delete draft/SLUG
-   ```
+レビュー結果をユーザーに報告：
 
-6. **公開完了を報告**
-   - 本番URL: `https://chronicle-969.pages.dev/posts/SLUG/`
-   - デプロイ完了まで1-2分
+- **公開可能**: 問題がなければ次のステップへ
+- **要修正**: 問題点と修正案を提示し、修正後に再レビュー
 
-## 引数
+### 4. main へのマージ
 
-- `$ARGUMENTS`: なし（現在のドラフトブランチを公開）
+ユーザーの公開承認を得てから実行：
 
-## 前提条件
+```bash
+# main に切り替え
+git checkout main
 
-- `/draft` コマンドでドラフトが作成済み
-- `draft/` ブランチにいること
+# 最新を取得
+git pull origin main
 
-## 出力
+# ドラフトブランチをマージ
+git merge draft/<slug>
 
-- 記事がmainにマージされる
-- ドラフトブランチが削除される
-- 本番URLが案内される
+# プッシュ
+git push origin main
+```
+
+### 5. クリーンアップ
+
+```bash
+# ローカルのドラフトブランチを削除
+git branch -d draft/<slug>
+
+# リモートのドラフトブランチを削除
+git push origin --delete draft/<slug>
+```
+
+### 6. 公開完了の案内
+
+```
+記事を公開しました！
+
+公開URL: https://chronicle-969.pages.dev/posts/<slug>/
+
+Cloudflare Pages のデプロイが完了するまで 1-2 分かかる場合があります。
+```

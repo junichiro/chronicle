@@ -1,46 +1,58 @@
-# Chronicle ドラフト記事作成
+---
+description: 会話内容からドラフト記事を作成し、プレビューブランチにプッシュする
+---
 
-これまでの会話内容をブログ記事としてドラフト化します。
+# /draft コマンド
+
+このコマンドは、これまでの会話・議論を基にブログ記事のドラフトを作成します。
 
 ## 実行手順
 
-1. **現在日時を確認**
-   ```bash
-   date "+%Y-%m-%d %H:%M:%S"
-   ```
+### 1. 記事構成の提案
 
-2. **article-planner サブエージェントで構成を提案**
-   - 会話内容を分析
-   - 記事構成を設計
-   - タイトル候補を3つ提示
-   - カテゴリ・タグを提案
+`article-planner` サブエージェントを使用して、会話内容を分析し記事構成を提案してください。
 
-3. **ユーザーに確認**
-   - タイトルを選択してもらう
-   - 構成について調整があれば反映
+提案には以下を含めること：
+- タイトル案
+- カテゴリとタグ
+- セクション構成
+- 想定読了時間
 
-4. **article-writer サブエージェントで執筆**
-   - Markdown形式で記事を作成
-   - `_posts/YYYY-MM-DD-slug.md` に保存
+### 2. ユーザー確認
 
-5. **ドラフトブランチを作成してプッシュ**
-   ```bash
-   git checkout -b draft/SLUG
-   git add _posts/YYYY-MM-DD-slug.md
-   git commit -m "Draft: 記事タイトル"
-   git push -u origin draft/SLUG
-   ```
+構成案をユーザーに提示し、確認を得てください。
+修正が必要な場合は反映してから次に進んでください。
 
-6. **プレビューURLを案内**
-   - Cloudflare Pagesが自動でビルド
-   - `https://draft-SLUG.chronicle-969.pages.dev/` でプレビュー可能
+### 3. 記事の執筆
 
-## 引数
+`article-writer` サブエージェントを使用して、承認された構成に基づき記事を執筆してください。
 
-- `$ARGUMENTS`: オプションでタイトルやトピックを指定可能
+- `date +%Y-%m-%d` で現在日付を確認
+- `_posts/YYYY-MM-DD-slug.md` 形式でファイルを作成
+- Jekyll/Chirpy 規約に従う
 
-## 出力
+### 4. プレビューブランチの作成
 
-- ドラフト記事ファイル（`_posts/` 内）
-- プレビューURL
-- 次のステップ（`/publish` で公開）
+```bash
+# ブランチ作成
+git checkout -b draft/<slug>
+
+# コミット
+git add _posts/<filename>.md
+git commit -m "Draft: <記事タイトル>"
+
+# プッシュ
+git push -u origin draft/<slug>
+```
+
+### 5. プレビュー URL の案内
+
+プッシュ完了後、以下を案内：
+
+```
+ドラフトをプッシュしました。
+
+プレビューURL: https://draft-<slug>.chronicle-969.pages.dev/
+
+確認後、`/publish` コマンドで公開できます。
+```
