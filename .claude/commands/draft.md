@@ -14,7 +14,8 @@ description: 会話内容からドラフト記事を作成し、プレビュー�
 
 提案には以下を含めること：
 - タイトル案
-- カテゴリとタグ
+- slug
+- タグ
 - セクション構成
 - 想定読了時間
 
@@ -27,9 +28,9 @@ description: 会話内容からドラフト記事を作成し、プレビュー�
 
 `article-writer` サブエージェントを使用して、承認された構成に基づき記事を執筆してください。
 
-- `date +%Y-%m-%d` で現在日付を確認
-- `_posts/YYYY-MM-DD-slug.md` 形式でファイルを作成
-- Jekyll/Chirpy 規約に従う
+- `date "+%Y-%m-%dT%H:%M:%S+09:00"` で現在日時を確認
+- `src/data/blog/slug.md` 形式でファイルを作成
+- AstroPaper 規約に従う
 
 ### 4. プレビューブランチの作成
 
@@ -38,7 +39,7 @@ description: 会話内容からドラフト記事を作成し、プレビュー�
 git checkout -b draft/<slug>
 
 # コミット
-git add _posts/<filename>.md
+git add src/data/blog/<slug>.md
 git commit -m "Draft: <記事タイトル>"
 
 # プッシュ

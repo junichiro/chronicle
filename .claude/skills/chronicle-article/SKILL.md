@@ -24,10 +24,10 @@ description: Chronicleブログの記事作成ワークフローを自動化す�
 
 提案内容：
 - タイトル案
-- カテゴリとタグ
+- slug
+- タグ
 - セクション構成と各セクションの概要
 - 想定読了時間
-- オプション機能（数式、Mermaid図など）の必要性
 
 ### Step 2: ユーザー確認
 
@@ -42,10 +42,9 @@ description: Chronicleブログの記事作成ワークフローを自動化す�
 `article-writer` サブエージェントを呼び出し、承認された構成に基づいて記事を執筆する。
 
 執筆時の注意点：
-- 現在の日付を `date +%Y-%m-%d` で確認してからファイルを作成
-- Jekyll/Chirpy の規約に従った front matter を作成
+- 現在の日時を `date "+%Y-%m-%dT%H:%M:%S+09:00"` で確認してからファイルを作成
+- AstroPaper の規約に従った front matter を作成
 - 日本語で自然な技術記事を執筆
-- Chirpy テーマの機能（プロンプトブロック、ファイル名表示など）を活用
 
 ### Step 4: プレビューブランチの作成とプッシュ
 
@@ -59,7 +58,7 @@ git branch --show-current
 git checkout -b draft/<slug>
 
 # 3. 記事をコミット
-git add _posts/<filename>.md
+git add src/data/blog/<slug>.md
 git commit -m "Draft: <記事タイトル>"
 
 # 4. リモートにプッシュ
@@ -78,9 +77,9 @@ git push -u origin draft/<slug>
 
 - **URL**: https://chronicle-969.pages.dev/
 - **ホスティング**: Cloudflare Pages
-- **フレームワーク**: Jekyll + Chirpy テーマ
+- **フレームワーク**: Astro + AstroPaper テーマ
 - **言語**: 日本語
-- **記事保存先**: `_posts/YYYY-MM-DD-slug.md`
+- **記事保存先**: `src/data/blog/slug.md`
 
 ## 関連サブエージェント
 
@@ -89,6 +88,7 @@ git push -u origin draft/<slug>
 | `article-planner` | 議論を分析し、記事構成を提案 |
 | `article-writer` | 構成に基づいて Markdown 記事を執筆 |
 | `article-reviewer` | 記事をレビューし、改善提案を行う（/publish 時に使用） |
+| `article-formatter` | 外部のMarkdown/テキストをブログ形式に変換 |
 
 ## 注意事項
 
