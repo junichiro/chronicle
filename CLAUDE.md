@@ -300,6 +300,68 @@ bundle exec jekyll serve
 bundle exec jekyll serve --drafts
 ```
 
+## Claude Code ワークフロー
+
+このプロジェクトでは、Claude Codeとの壁打ちから記事を作成するワークフローが構築されています。
+
+### 記事作成の流れ
+
+```
+壁打ち・議論 → /draft → プレビュー確認 → /publish → 公開
+```
+
+### 利用可能なコマンド
+
+| コマンド | 説明 |
+|----------|------|
+| `/draft` | 会話内容からドラフト記事を作成し、プレビューブランチにプッシュ |
+| `/publish` | ドラフトをレビュー後、mainにマージして公開 |
+
+### Sub-agents
+
+| エージェント | 役割 |
+|-------------|------|
+| `article-planner` | 議論を分析し、記事構成を提案 |
+| `article-writer` | 構成に基づいてMarkdown記事を執筆 |
+| `article-reviewer` | 記事をレビューし、改善提案を行う |
+
+### 使い方
+
+1. **壁打ち**: Claude Codeと自由に議論
+2. **ドラフト作成**: `/draft` コマンドを実行
+   - article-plannerが構成を提案
+   - タイトル・構成を確認
+   - article-writerが執筆
+   - ブランチ作成 & プッシュ
+3. **プレビュー確認**: Cloudflare Pagesのプレビューで確認
+4. **公開**: `/publish` コマンドを実行
+   - article-reviewerがレビュー
+   - mainにマージ
+   - 自動デプロイ
+
+### ディレクトリ構成（Claude Code関連）
+
+```
+.claude/
+├── agents/
+│   ├── article-planner.md    # 構成提案エージェント
+│   ├── article-writer.md     # 執筆エージェント
+│   └── article-reviewer.md   # レビューエージェント
+├── skills/
+│   └── chronicle-article/
+│       └── SKILL.md          # 記事作成スキル
+└── commands/
+    ├── draft.md              # /draft コマンド
+    └── publish.md            # /publish コマンド
+```
+
+### トリガーワード
+
+以下のような発言で自動的に記事作成ワークフローが開始：
+- 「記事にしたい」「記事にまとめたい」
+- 「ブログに書きたい」「ブログにしたい」
+- 「これを公開したい」
+
 ## 参考リンク
 
 - [Chirpy公式ドキュメント](https://chirpy.cotes.page/)
