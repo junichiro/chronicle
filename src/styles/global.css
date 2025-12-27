@@ -67,3 +67,15 @@ html[data-theme="dark"] {
 :target {
   scroll-margin-block: 1rem;
 }
+
+/* MathJax styles */
+mjx-container {
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+mjx-container[display="true"] {
+  display: block;
+  margin: 1em 0;
+  text-align: center;
+}
