@@ -1,0 +1,14 @@
+---
+---
+
+@import 'main';
+
+/* Klee One フォント適用（アイコン除外） */
+*:not(i):not([class*="fa-"]):not([class*="bi-"]):not([class^="icon"]):not(.fab):not(.fas):not(.far):not(.fa) {
+  font-family: 'Klee One', cursive !important;
+}
+
+/* main の line-height を 1.5 に設定 */
+main {
+  line-height: 1.5 !important;
+}
