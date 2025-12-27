@@ -1,11 +1,12 @@
 # Chronicle - Personal Tech Blog
 
-GitHub Pages + Jekyll + Chirpy テーマで構築された個人ブログ
+Cloudflare Pages + Jekyll + Chirpy テーマで構築された個人ブログ
 
 ## サイト情報
 
-- **URL**: https://junichiro.github.io/chronicle/
+- **URL**: https://chronicle.pages.dev/
 - **リポジトリ**: https://github.com/junichiro/chronicle
+- **ホスティング**: Cloudflare Pages
 - **テーマ**: [Chirpy](https://github.com/cotes2020/jekyll-theme-chirpy)
 - **言語設定**: 日本語 (ja-JP)
 - **タイムゾーン**: Asia/Tokyo
@@ -16,12 +17,13 @@ GitHub Pages + Jekyll + Chirpy テーマで構築された個人ブログ
 chronicle/
 ├── _posts/              # 記事を置くディレクトリ
 │   └── YYYY-MM-DD-slug.md
+├── _drafts/             # 下書き（公開されない）
 ├── _tabs/               # サイドバーのページ（About, Archives等）
 ├── _data/               # サイト設定データ
 ├── _config.yml          # サイト全体の設定
 ├── assets/              # 画像などの静的ファイル
 │   └── img/
-└── .github/workflows/   # GitHub Actions（自動デプロイ）
+└── CLAUDE.md            # このファイル
 ```
 
 ## 記事の書き方
@@ -32,8 +34,10 @@ chronicle/
 _posts/YYYY-MM-DD-slug.md
 ```
 
-- `YYYY-MM-DD`: 公開日（例: 2024-12-27）
-- `slug`: URL用の識別子（英数字とハイフン、例: my-first-post）
+- `YYYY-MM-DD`: 公開日
+- `slug`: URL用の識別子（英数字とハイフン）
+
+**重要**: 日付は必ず `date` コマンドで現在日時を確認してから使用すること。
 
 ### Front Matter（必須）
 
@@ -42,7 +46,7 @@ _posts/YYYY-MM-DD-slug.md
 ```yaml
 ---
 title: 記事のタイトル
-date: 2024-12-27 10:00:00 +0900
+date: 2025-12-27 10:00:00 +0900
 categories: [カテゴリ1, カテゴリ2]
 tags: [タグ1, タグ2]
 ---
@@ -53,7 +57,7 @@ tags: [タグ1, タグ2]
 ```yaml
 ---
 title: 記事のタイトル
-date: 2024-12-27 10:00:00 +0900
+date: 2025-12-27 10:00:00 +0900
 categories: [Tech, Programming]
 tags: [rust, web, tutorial]
 
@@ -108,7 +112,7 @@ def hello():
 assets/
 └── img/
     ├── posts/          # 記事用画像
-    │   └── 2024/
+    │   └── 2025/
     │       └── example.jpg
     └── favicons/       # ファビコン
 ```
@@ -116,7 +120,7 @@ assets/
 記事内での参照：
 
 ```markdown
-![説明](/assets/img/posts/2024/example.jpg)
+![説明](/assets/img/posts/2025/example.jpg)
 ```
 
 ## 記事の公開手順
@@ -128,19 +132,43 @@ git add _posts/YYYY-MM-DD-slug.md
 git commit -m "Add: 記事タイトル"
 git push
 
-# 3. GitHub Actions が自動でビルド・デプロイ（1-2分）
+# 3. Cloudflare Pages が自動でビルド・デプロイ（1-2分）
 ```
 
-## 下書き
+## 下書きとプレビュー
 
-公開前の下書きは `_drafts/` ディレクトリに置く：
+Cloudflare PagesではブランチごとにプレビューURLが発行されるため、下書きの確認が簡単にできる。
+
+### 方法1: ブランチプレビュー（推奨）
+
+```bash
+# 1. ドラフト用ブランチを作成
+git checkout -b draft/my-new-post
+
+# 2. _posts/ に記事を作成（通常通り）
+# 3. コミット & プッシュ
+git add _posts/2025-12-27-my-new-post.md
+git commit -m "Draft: 新しい記事"
+git push -u origin draft/my-new-post
+
+# → 自動でプレビューURLが発行される
+# 例: https://draft-my-new-post.chronicle.pages.dev/
+
+# 4. 確認後、mainにマージして公開
+git checkout main
+git merge draft/my-new-post
+git push
+git branch -d draft/my-new-post
+```
+
+### 方法2: _drafts ディレクトリ
+
+`_drafts/` に置いた記事は公開されない（ローカルプレビュー用）：
 
 ```
 _drafts/
 └── my-draft-post.md    # 日付プレフィックス不要
 ```
-
-下書きはサイトに公開されない。
 
 ## カテゴリとタグ
 
@@ -185,7 +213,6 @@ tags: [rust, web, backend, tutorial]
 
 ````markdown
 ```python
-# ファイル名: hello.py
 def hello():
     print("Hello!")
 ```
@@ -225,8 +252,8 @@ graph LR
 title: Chronicle              # サイトタイトル
 tagline: Personal Tech Blog   # サブタイトル
 description: 技術と日常の記録  # サイト説明
-url: "https://junichiro.github.io"
-baseurl: "/chronicle"
+url: "https://chronicle.pages.dev"
+baseurl: ""
 lang: ja-JP
 timezone: Asia/Tokyo
 ```
@@ -239,6 +266,24 @@ timezone: Asia/Tokyo
 avatar: /assets/img/avatar.jpg
 ```
 
+## Cloudflare Pages 設定
+
+### 環境変数
+
+Cloudflareダッシュボードで設定済み：
+
+| Variable | Value |
+|----------|-------|
+| `BUNDLE_WITHOUT` | `test` |
+
+### ビルド設定
+
+| 項目 | 値 |
+|------|-----|
+| Framework preset | Jekyll |
+| Build command | `jekyll build` |
+| Build output directory | `_site` |
+
 ## ローカルプレビュー（オプション）
 
 ```bash
@@ -246,7 +291,13 @@ avatar: /assets/img/avatar.jpg
 bundle install
 bundle exec jekyll serve
 
-# http://127.0.0.1:4000/chronicle/ でプレビュー
+# http://127.0.0.1:4000/ でプレビュー
+```
+
+ドラフトを含めてプレビュー：
+
+```bash
+bundle exec jekyll serve --drafts
 ```
 
 ## 参考リンク
@@ -254,3 +305,4 @@ bundle exec jekyll serve
 - [Chirpy公式ドキュメント](https://chirpy.cotes.page/)
 - [Jekyll公式ドキュメント](https://jekyllrb.com/docs/)
 - [Chirpy Writing Guide](https://chirpy.cotes.page/posts/write-a-new-post/)
+- [Cloudflare Pages](https://pages.cloudflare.com/)
