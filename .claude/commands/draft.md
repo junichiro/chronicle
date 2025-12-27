@@ -54,7 +54,7 @@ git push -u origin draft/<slug>
 ```
 ドラフトをプッシュしました。
 
-プレビューURL: https://draft-<slug>.chronicle-969.pages.dev/
+プレビューURL: https://draft-<slug>.chronicle.junichiro.co.uk/
 
 確認後、`/publish` コマンドで公開できます。
 ```

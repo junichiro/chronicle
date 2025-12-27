@@ -67,7 +67,7 @@ git push origin --delete draft/<slug>
 ```
 記事を公開しました！
 
-公開URL: https://chronicle-969.pages.dev/posts/<slug>/
+公開URL: https://chronicle.junichiro.co.uk/posts/<slug>/
 
 Cloudflare Pages のデプロイが完了するまで 1-2 分かかる場合があります。
 ```

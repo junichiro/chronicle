@@ -11,7 +11,7 @@ model: sonnet
 
 ## Context
 
-- **ブログURL**: https://chronicle-969.pages.dev/
+- **ブログURL**: https://chronicle.junichiro.co.uk/
 - **フレームワーク**: Astro + AstroPaper テーマ
 - **コンテンツ言語**: 日本語
 - **対象読者**: 開発者とテック愛好家

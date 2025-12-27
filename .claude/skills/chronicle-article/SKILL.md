@@ -71,12 +71,12 @@ git push -u origin draft/<slug>
 プッシュ完了後、Cloudflare Pages のプレビュー URL をユーザーに案内する：
 
 ```
-プレビューURL: https://draft-<slug>.chronicle-969.pages.dev/
+プレビューURL: https://draft-<slug>.chronicle.junichiro.co.uk/
 ```
 
 ## ブログ情報
 
-- **URL**: https://chronicle-969.pages.dev/
+- **URL**: https://chronicle.junichiro.co.uk/
 - **ホスティング**: Cloudflare Pages
 - **フレームワーク**: Astro + AstroPaper テーマ
 - **言語**: 日本語

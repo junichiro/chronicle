@@ -4,7 +4,7 @@ Cloudflare Pages + Astro + AstroPaper テーマで構築された個人ブログ
 
 ## サイト情報
 
-- **URL**: https://chronicle-969.pages.dev/
+- **URL**: https://chronicle.junichiro.co.uk/
 - **リポジトリ**: https://github.com/junichiro/chronicle
 - **ホスティング**: Cloudflare Pages
 - **フレームワーク**: [Astro](https://astro.build/)
@@ -193,7 +193,7 @@ git commit -m "Draft: 新しい記事"
 git push -u origin draft/my-new-post
 
 # → 自動でプレビューURLが発行される
-# 例: https://draft-my-new-post.chronicle-969.pages.dev/
+# 例: https://draft-my-new-post.chronicle.junichiro.co.uk/
 
 # 4. 確認後、mainにマージして公開
 git checkout main
@@ -230,7 +230,7 @@ tags:
 
 ```typescript
 export const SITE = {
-  website: "https://chronicle-969.pages.dev/",
+  website: "https://chronicle.junichiro.co.uk/",
   author: "junichiro",
   profile: "https://github.com/junichiro",
   desc: "技術と日常の記録",

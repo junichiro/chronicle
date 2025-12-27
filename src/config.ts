@@ -1,5 +1,5 @@
 export const SITE = {
-  website: "https://chronicle-969.pages.dev/",
+  website: "https://chronicle.junichiro.co.uk/",
   author: "junichiro",
   profile: "https://github.com/junichiro",
   desc: "技術と日常の記録",

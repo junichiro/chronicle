@@ -4,7 +4,7 @@
 
 ## サイト情報
 
-- **URL**: https://chronicle-969.pages.dev/
+- **URL**: https://chronicle.junichiro.co.uk/
 - **フレームワーク**: [Astro](https://astro.build/) + [AstroPaper](https://github.com/satnaing/astro-paper)
 - **ホスティング**: [Cloudflare Pages](https://pages.cloudflare.com/)
 
