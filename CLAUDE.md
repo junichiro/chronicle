@@ -430,6 +430,7 @@ Claude: 「ドラフトをプッシュしました」
 | `article-planner` | 議論を分析し、記事構成を提案 |
 | `article-writer` | 構成に基づいて Markdown 記事を執筆 |
 | `article-reviewer` | 記事をレビューし、改善提案を行う |
+| `article-formatter` | 外部のMarkdown/テキストをブログ形式に変換 |
 
 ### トリガーワード
 
@@ -439,6 +440,22 @@ Claude: 「ドラフトをプッシュしました」
 - 「ブログに書きたい」「ブログにしたい」
 - 「これを公開したい」
 
+### 外部コンテンツのフォーマット
+
+Gemini Deep Research などで生成したレポートやマークダウンをブログ記事に変換する場合：
+
+```
+あなた: 「このマークダウンをブログ記事にフォーマットして」
+→ article-formatter エージェントが起動
+
+処理内容:
+- 番号付き見出し (1., 1.1 など) を Markdown 形式に変換
+- Front matter を自動生成
+- Chirpy テーマ機能を適用（プロンプトブロック、ファイル属性）
+- 学術的な文体をアクセシブルなブログ文体に調整
+- 長いコンテンツはシリーズ分割を提案
+```
+
 ### ディレクトリ構成（Claude Code 関連）
 
 ```
@@ -446,7 +463,8 @@ Claude: 「ドラフトをプッシュしました」
 ├── agents/
 │   ├── article-planner.md    # 構成提案エージェント
 │   ├── article-writer.md     # 執筆エージェント
-│   └── article-reviewer.md   # レビューエージェント
+│   ├── article-reviewer.md   # レビューエージェント
+│   └── article-formatter.md  # 外部コンテンツ変換エージェント
 ├── skills/
 │   └── chronicle-article/
 │       └── SKILL.md          # 記事作成スキル（自動トリガー）
