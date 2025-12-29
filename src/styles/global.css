@@ -72,10 +72,25 @@ html[data-theme="dark"] {
 mjx-container {
   overflow-x: auto;
   overflow-y: hidden;
+  color: var(--foreground);
 }
 
 mjx-container[display="true"] {
   display: block;
   margin: 1em 0;
   text-align: center;
+}
+
+/* MathJax SVG のダークモード対応 */
+mjx-container svg {
+  color: var(--foreground);
+}
+
+mjx-container svg [fill="currentColor"] {
+  fill: var(--foreground);
+}
+
+/* MathJax CHTML のダークモード対応 */
+mjx-container mjx-math {
+  color: var(--foreground);
 }
