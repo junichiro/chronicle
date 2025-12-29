@@ -10,6 +10,11 @@ html[data-theme="light"] {
   --accent: #006cac;
   --muted: #e6e6e6;
   --border: #ece9e9;
+
+  /* Typography spacing */
+  --line-height-body: 1.47em;
+  --spacing-list: 0.27em;
+  --spacing-list-item: 0.18em;
 }
 
 html[data-theme="dark"] {
@@ -38,7 +43,8 @@ html[data-theme="dark"] {
     @apply overflow-y-scroll scroll-smooth;
   }
   body {
-    @apply flex min-h-svh flex-col bg-background font-mono text-foreground selection:bg-accent/75 selection:text-background;
+    @apply flex min-h-svh flex-col bg-background text-foreground selection:bg-accent/75 selection:text-background;
+    font-family: "JetBrains Mono", "Klee One", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   }
   a,
   button {
