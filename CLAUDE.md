@@ -207,7 +207,7 @@ git commit -m "Draft: 新しい記事"
 git push -u origin draft/my-new-post
 
 # → 自動でプレビューURLが発行される
-# 例: https://draft-my-new-post.chronicle.junichiro.co.uk/
+# 例: https://draft-my-new-post.chronicle-969.pages.dev/
 
 # 4. 確認後、mainにマージして公開
 git checkout main
