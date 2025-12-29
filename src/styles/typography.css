@@ -13,8 +13,16 @@
       @apply mb-3 text-foreground;
     }
 
+    h2 {
+      @apply border-l-4 border-accent pl-3 font-bold;
+    }
+
     h3 {
-      @apply italic;
+      @apply border-l-2 border-accent pl-3;
+    }
+
+    h4 {
+      @apply border-l border-accent pl-3;
     }
 
     p,
