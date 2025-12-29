@@ -13,16 +13,18 @@
       @apply mb-3 text-foreground;
     }
 
+    h2,
+    h3,
+    h4 {
+      @apply border-l border-accent pl-3;
+    }
+
     h2 {
-      @apply border-l-4 border-accent pl-3 font-bold;
+      @apply border-l-4 font-bold;
     }
 
     h3 {
-      @apply border-l-2 border-accent pl-3;
-    }
-
-    h4 {
-      @apply border-l border-accent pl-3;
+      @apply border-l-2;
     }
 
     p,
@@ -36,16 +38,16 @@
     }
 
     p {
-      line-height: 1.47em;
+      line-height: var(--line-height-body);
     }
 
     ol,
     ul {
-      margin-block: 0.27em;
+      margin-block: var(--spacing-list);
     }
 
     li {
-      margin-block: 0.18em;
+      margin-block: var(--spacing-list-item);
     }
 
     a {
