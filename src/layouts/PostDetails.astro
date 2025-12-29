@@ -285,4 +285,96 @@ const nextPost =
   document.addEventListener("astro:after-swap", () =>
     window.scrollTo({ left: 0, top: 0, behavior: "instant" })
   );
+
+  /** Initialize Mermaid diagrams */
+  async function initMermaid() {
+    // Shiki は data-language 属性を使用する
+    const mermaidBlocks = document.querySelectorAll('pre[data-language="mermaid"]');
+    if (mermaidBlocks.length === 0) return;
+
+    // Mermaid.js を動的に読み込む
+    const mermaid = (await import("https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs")).default;
+
+    // 現在のテーマを取得
+    const currentTheme = document.documentElement.getAttribute("data-theme");
+    const mermaidTheme = currentTheme === "dark" ? "dark" : "default";
+
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: mermaidTheme,
+      securityLevel: "loose",
+    });
+
+    // 各 Mermaid ブロックを処理
+    for (const preBlock of mermaidBlocks) {
+      // 既に処理済みの場合はスキップ
+      if (preBlock.classList.contains("mermaid-processed")) continue;
+
+      // code 要素からテキストを取得
+      const codeElement = preBlock.querySelector("code");
+      const code = codeElement?.textContent || "";
+
+      const container = document.createElement("div");
+      container.className = "mermaid";
+      // 元のコードをデータ属性として保持（再レンダリング用）
+      container.setAttribute("data-mermaid-source", code);
+      container.textContent = code;
+
+      // pre ブロックを置き換え
+      preBlock.parentNode?.insertBefore(container, preBlock);
+      preBlock.style.display = "none";
+      preBlock.classList.add("mermaid-processed");
+    }
+
+    // Mermaid をレンダリング
+    await mermaid.run();
+  }
+
+  /** Re-render Mermaid diagrams on theme change */
+  async function rerenderMermaid() {
+    const mermaidContainers = document.querySelectorAll(".mermaid[data-mermaid-source]");
+    if (mermaidContainers.length === 0) return;
+
+    const mermaid = (await import("https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs")).default;
+
+    const currentTheme = document.documentElement.getAttribute("data-theme");
+    const mermaidTheme = currentTheme === "dark" ? "dark" : "default";
+
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: mermaidTheme,
+      securityLevel: "loose",
+    });
+
+    // 既存の SVG を削除し、元のコードを復元してから再レンダリング
+    for (const container of mermaidContainers) {
+      const svg = container.querySelector("svg");
+      if (svg) svg.remove();
+      container.removeAttribute("data-processed");
+      // 元のコードを復元
+      const originalCode = container.getAttribute("data-mermaid-source") || "";
+      container.textContent = originalCode;
+    }
+
+    await mermaid.run();
+  }
+
+  // 初期化
+  initMermaid();
+
+  // テーマ切り替え時に再レンダリング
+  const themeBtn = document.getElementById("theme-btn");
+  if (themeBtn) {
+    themeBtn.addEventListener("click", () => {
+      // テーマ切り替え後に少し待ってから再レンダリング
+      setTimeout(rerenderMermaid, 100);
+    });
+  }
+
+  // システムテーマ変更時に再レンダリング
+  window
+    .matchMedia("(prefers-color-scheme: dark)")
+    .addEventListener("change", () => {
+      setTimeout(rerenderMermaid, 100);
+    });
 </script>
