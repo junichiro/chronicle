@@ -163,22 +163,168 @@ $$
 - ギリシャ文字: `\alpha`, `\beta`, `\pi` など
 - 行列: `\begin{pmatrix} ... \end{pmatrix}`
 
-### 画像の配置
+### メディアの挿入（画像・動画・音声）
 
-画像は `public/assets/` 以下に配置：
+記事にメディアファイルを挿入する方法を説明します。
+
+#### ディレクトリ構成
+
+メディアファイルは `public/assets/` 以下に配置：
 
 ```
 public/
 └── assets/
-    └── images/
-        └── example.jpg
+    ├── images/        # 画像ファイル（jpg, png, gif, webp, svg）
+    │   └── example.jpg
+    ├── videos/        # 動画ファイル（mp4, webm）
+    │   └── demo.mp4
+    └── audio/         # 音声ファイル（mp3, wav, ogg）
+        └── podcast.mp3
 ```
 
-記事内での参照：
+#### 画像
+
+基本的な挿入：
 
 ```markdown
-![説明](/assets/images/example.jpg)
+![画像の説明](/assets/images/example.jpg)
 ```
+
+サイズ指定（HTML を使用）：
+
+```html
+<img src="/assets/images/example.jpg" alt="説明" width="600">
+```
+
+キャプション付き（figure タグ）：
+
+```html
+<figure>
+  <img src="/assets/images/screenshot.png" alt="スクリーンショット">
+  <figcaption>図1: アプリケーションのダッシュボード画面</figcaption>
+</figure>
+```
+
+#### GIF アニメーション
+
+通常の画像と同じ方法で挿入可能：
+
+```markdown
+![デモアニメーション](/assets/images/demo.gif)
+```
+
+#### 動画
+
+**ローカル動画ファイル:**
+
+```html
+<video controls width="100%">
+  <source src="/assets/videos/demo.mp4" type="video/mp4">
+  お使いのブラウザは動画タグをサポートしていません。
+</video>
+```
+
+オプション属性：
+- `controls`: 再生コントロールを表示
+- `autoplay`: 自動再生（`muted` と併用推奨）
+- `loop`: ループ再生
+- `muted`: ミュート状態で開始
+- `poster="/assets/images/thumbnail.jpg"`: サムネイル画像
+
+**YouTube 埋め込み:**
+
+```html
+<iframe
+  width="560"
+  height="315"
+  src="https://www.youtube.com/embed/VIDEO_ID"
+  title="動画タイトル"
+  frameborder="0"
+  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+  allowfullscreen>
+</iframe>
+```
+
+レスポンシブ対応（推奨）：
+
+```html
+<div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+  <iframe
+    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
+    src="https://www.youtube.com/embed/VIDEO_ID"
+    title="動画タイトル"
+    frameborder="0"
+    allowfullscreen>
+  </iframe>
+</div>
+```
+
+**Vimeo 埋め込み:**
+
+```html
+<iframe
+  src="https://player.vimeo.com/video/VIDEO_ID"
+  width="640"
+  height="360"
+  frameborder="0"
+  allowfullscreen>
+</iframe>
+```
+
+#### 音声
+
+```html
+<audio controls>
+  <source src="/assets/audio/podcast.mp3" type="audio/mpeg">
+  お使いのブラウザは音声タグをサポートしていません。
+</audio>
+```
+
+#### 注意事項
+
+- **ファイルサイズ**: Git リポジトリには大きなファイル（目安: 10MB以上）を避ける
+  - 大きな動画は YouTube/Vimeo にアップロードして埋め込み推奨
+  - 必要なら Git LFS の利用を検討
+- **画像最適化**: 可能なら WebP 形式を使用（ファイルサイズ削減）
+- **アクセシビリティ**: 画像には必ず `alt` 属性で説明を記述
+- **パス**: `public/` 配下のファイルは URL で `/` から始まるパスで参照
+
+#### Claude Code へのメディアの渡し方
+
+記事にメディアを挿入したい場合、以下の方法で Claude Code に伝えてください。
+
+**ローカルファイルを使う場合:**
+
+```
+「~/Downloads/screenshot.png を記事に入れて」
+「/tmp/demo.mp4 を動画として挿入して」
+「デスクトップにある diagram.svg を使いたい」
+```
+
+→ Claude Code がファイルを `public/assets/` にコピーし、記事に挿入します。
+
+**YouTube/Vimeo を埋め込む場合:**
+
+```
+「この動画を埋め込んで: https://www.youtube.com/watch?v=xxxxx」
+「Vimeo の動画を入れたい: https://vimeo.com/123456789」
+```
+
+→ Claude Code が適切な埋め込みコードを生成します。
+
+**外部画像 URL を使う場合:**
+
+```
+「この画像を使いたい: https://example.com/image.png」
+```
+
+→ Claude Code が画像をダウンロードして `public/assets/images/` に保存し、記事に挿入します。
+
+**Claude Code にできないこと:**
+
+- 画像の生成（DALL-E 等の画像生成 AI ではない）
+- スクリーンショットの自動撮影（ユーザーが撮影して渡す必要あり）
+- 動画の撮影・編集
 
 ## 記事の公開手順
 
