@@ -602,38 +602,56 @@ fun `有効な設定値の場合は正常に初期化される`() {
 
 ```kotlin
 @Test
-fun `有効な設定値の場合は正常に初期化される`() {
-    // Given
-    every { recipientPolicy.getAllowedRecipients() } returns emptySet()
+fun `メール送信が成功する`() {
+    // Given: すべての依存をモック化
+    every { recipientPolicy.isAllowed(any()) } returns true
+    every { templateRenderer.loadProposalEmailTemplate() } returns "<html>{{COMPANY_NAME}}</html>"
+    every { templateRenderer.render(any(), any()) } returns "<html>テスト株式会社</html>"
+    every { inputSanitizer.sanitizeCompanyName(any()) } returns "テスト株式会社"
+    every { inputSanitizer.sanitizeContactName(any()) } returns "田中様"
+    every { emailSender.sendEmail(any(), any(), any(), any(), any()) } returns "msg-123"
 
-    // When
     val service = EmailService(
         emailSender = mockEmailSender,
         templateRenderer = mockTemplateRenderer,
         recipientPolicy = recipientPolicy,
         inputSanitizer = mockInputSanitizer,
-        s3DownloadClient = mockS3Client,
-        replyToEmail = "reply@example.com"
+        replyToEmail = "reply@example.com",
+        dryRun = false  // 実際に送信
     )
 
-    // Then
-    assertNotNull(service)
-    assertTrue(service.isDryRunEnabled(), "dryRun はデフォルトで true であるべき")
+    // When
+    val result = service.sendProposalEmail(validRequest)
+
+    // Then: 期待通りのメッセージIDが返される
+    assertEquals("msg-123", result)
+    verify { emailSender.sendEmail("test@example.com", any(), any(), any(), any()) }
 }
 
 @Test
-fun `dryRun が false の場合、isDryRunEnabled は false を返す`() {
+fun `dryRun が true の場合、実際には送信されない`() {
     // Given
-    every { recipientPolicy.getAllowedRecipients() } returns emptySet()
+    every { recipientPolicy.isAllowed(any()) } returns true
+    every { templateRenderer.loadProposalEmailTemplate() } returns "<html></html>"
+    every { templateRenderer.render(any(), any()) } returns "<html></html>"
+    every { inputSanitizer.sanitizeCompanyName(any()) } returns "テスト"
+    every { inputSanitizer.sanitizeContactName(any()) } returns "担当者"
 
-    // When
     val service = EmailService(
-        // ...
-        dryRun = false
+        emailSender = mockEmailSender,
+        templateRenderer = mockTemplateRenderer,
+        recipientPolicy = recipientPolicy,
+        inputSanitizer = mockInputSanitizer,
+        replyToEmail = "reply@example.com",
+        dryRun = true  // Dry-Run モード
     )
 
-    // Then
-    assertFalse(service.isDryRunEnabled())
+    // When
+    val result = service.sendProposalEmail(validRequest)
+
+    // Then: dry-run プレフィックス付きのIDが返され、実際の送信は行われない
+    assertTrue(result.startsWith("dry-run-"))
+    verify(exactly = 0) { emailSender.sendEmail(any(), any(), any(), any(), any()) }
 }
 ```
 
