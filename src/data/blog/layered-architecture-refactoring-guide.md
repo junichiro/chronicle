@@ -632,6 +632,3 @@ flowchart LR
 - [MockK Documentation](https://mockk.io/)
 - [SOLID 原則入門](https://en.wikipedia.org/wiki/SOLID)
 
----
-
-*この記事は、実際のプロダクションコードのリファクタリング経験を元に作成しました。*
