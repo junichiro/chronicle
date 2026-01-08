@@ -83,28 +83,28 @@ class ProposalController(
 
 レイヤードアーキテクチャは、アプリケーションを **責務ごとに階層化** する設計パターンです。
 
-```
-┌─────────────────────────────────────┐
-│         Presentation Layer          │  ← Controller
-│    （HTTP リクエスト/レスポンス処理）    │
-└─────────────────────────────────────┘
-                  │
-                  ▼ 依存
-┌─────────────────────────────────────┐
-│          Business Layer             │  ← Service
-│      （ビジネスロジック、ユースケース）   │
-└─────────────────────────────────────┘
-                  │
-                  ▼ 依存
-┌─────────────────────────────────────┐
-│        Persistence Layer            │  ← Repository
-│     （データの永続化、DB アクセス）     │
-└─────────────────────────────────────┘
-                  │
-                  ▼
-┌─────────────────────────────────────┐
-│            Database                 │
-└─────────────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph Presentation["Presentation Layer"]
+        C[Controller]
+        C1["HTTP リクエスト/レスポンス処理"]
+    end
+
+    subgraph Business["Business Layer"]
+        S[Service]
+        S1["ビジネスロジック、ユースケース"]
+    end
+
+    subgraph Persistence["Persistence Layer"]
+        R[Repository]
+        R1["データの永続化、DB アクセス"]
+    end
+
+    DB[(Database)]
+
+    Presentation -->|依存| Business
+    Business -->|依存| Persistence
+    Persistence --> DB
 ```
 
 ### 2.2 各レイヤーの責務
@@ -117,14 +117,15 @@ class ProposalController(
 
 ### 2.3 重要なルール：依存の方向は上から下のみ
 
-```
-Controller → Service → Repository
-    ↓           ↓          ↓
-    OK          OK         OK
+```mermaid
+flowchart LR
+    subgraph OK["✅ 正しい依存"]
+        C1[Controller] --> S1[Service] --> R1[Repository]
+    end
 
-Controller → Repository
-    ↓
-   ❌ レイヤー違反！
+    subgraph NG["❌ レイヤー違反"]
+        C2[Controller] -.->|直接依存| R2[Repository]
+    end
 ```
 
 **上位レイヤーは下位レイヤーに依存できますが、その逆は許されません。** また、 **レイヤーを飛び越えた依存も避けるべきです。**
@@ -224,23 +225,20 @@ Controller は一切変更不要です。これが **レイヤー分離の恩恵
 
 > 上位モジュールは下位モジュールに依存してはならない。両者は抽象に依存すべきである。
 
+```mermaid
+flowchart LR
+    subgraph violation["❌ 違反パターン"]
+        C1[Controller] -->|直接依存| R1[Repository]
+    end
 ```
-❌ 違反パターン
-┌──────────────┐     直接依存     ┌──────────────┐
-│  Controller  │ ─────────────▶ │  Repository  │
-└──────────────┘                 └──────────────┘
 
-✅ 正しいパターン
-┌──────────────┐                 ┌──────────────┐
-│  Controller  │                 │  Repository  │
-└──────────────┘                 └──────────────┘
-       │                               │
-       │ 依存                     実装 │
-       ▼                               ▼
-┌──────────────┐                 ┌──────────────┐
-│   Service    │ ─────────────▶ │   Service    │
-│ (Interface)  │     使用       │   (Impl)     │
-└──────────────┘                 └──────────────┘
+```mermaid
+flowchart TD
+    subgraph correct["✅ 正しいパターン"]
+        C2[Controller] -->|依存| SI[Service Interface]
+        SI -->|使用| IMPL[Service Impl]
+        IMPL -->|依存| R2[Repository]
+    end
 ```
 
 ### 4.2 単一責任の原則（SRP: Single Responsibility Principle）
@@ -265,20 +263,13 @@ Repository を変更する理由:
 
 ### 5.1 TDD の基本サイクル
 
-```
-┌─────────────────────────────────────────────────┐
-│                                                 │
-│    RED ──────▶ GREEN ──────▶ REFACTOR          │
-│     │                            │              │
-│     │                            │              │
-│     ▼                            ▼              │
-│  テストを書く              コードを改善         │
-│  （失敗する）               （テストは緑）       │
-│                                                 │
-│         最小限の実装で                          │
-│         テストを通す                            │
-│                                                 │
-└─────────────────────────────────────────────────┘
+```mermaid
+flowchart LR
+    RED["🔴 RED<br/>テストを書く<br/>（失敗する）"]
+    GREEN["🟢 GREEN<br/>最小限の実装で<br/>テストを通す"]
+    REFACTOR["🔵 REFACTOR<br/>コードを改善<br/>（テストは緑）"]
+
+    RED --> GREEN --> REFACTOR --> RED
 ```
 
 ### 5.2 Step 1: RED - 失敗するテストを書く
@@ -420,33 +411,25 @@ class ProposalController(
 
 ### 6.1 依存関係の変化
 
+```mermaid
+flowchart TD
+    subgraph before["❌ Before"]
+        C1[ProposalController]
+        S1[Service]
+        R1[Repository]
+        C1 --> S1
+        C1 -.->|レイヤー違反| R1
+    end
 ```
-❌ Before:
-┌──────────────────┐
-│ ProposalController│
-└──────────────────┘
-         │
-    ┌────┴────┐
-    ▼         ▼
-┌────────┐ ┌────────────────┐
-│Service │ │ Repository     │  ← レイヤー違反
-└────────┘ └────────────────┘
 
-
-✅ After:
-┌──────────────────┐
-│ ProposalController│
-└──────────────────┘
-         │
-         ▼
-┌──────────────────┐
-│ ProposalService  │
-└──────────────────┘
-         │
-         ▼
-┌──────────────────────┐
-│ ProposalRepository   │
-└──────────────────────┘
+```mermaid
+flowchart TD
+    subgraph after["✅ After"]
+        C2[ProposalController]
+        S2[ProposalService]
+        R2[ProposalRepository]
+        C2 --> S2 --> R2
+    end
 ```
 
 ### 6.2 コードの変化
@@ -454,8 +437,8 @@ class ProposalController(
 #### Controller（import 文）
 
 ```diff
-- import com.raksul.ad_one.repository.ProposalRepository
-  import com.raksul.ad_one.service.ProposalService
+- import com.example.app.repository.ProposalRepository
+  import com.example.app.service.ProposalService
 ```
 
 #### Controller（コンストラクタ）
@@ -601,11 +584,15 @@ Controller から使用する Repository メソッドのみ、Service にラッ�
 
 **A: Controller から Repository への直接依存は避けるべきですが、Service から Repository への依存は正常です。**
 
+```mermaid
+flowchart LR
+    subgraph correct["✅ 正しいパターン"]
+        C[Controller] --> S[Service] --> R[Repository]
+    end
 ```
-Controller → Service ← Repository  // 正しい
-Controller → Repository             // 避けるべき
-Service → Repository                // これは OK
-```
+
+- `Controller → Repository`: 避けるべき
+- `Service → Repository`: これは OK
 
 ---
 
@@ -647,4 +634,4 @@ Service → Repository                // これは OK
 
 ---
 
-*この記事は、実際のプロダクションコードのリファクタリング（[PR #178](https://github.com/raksul/novasell-one/pull/178)）を元に作成しました。*
+*この記事は、実際のプロダクションコードのリファクタリング経験を元に作成しました。*

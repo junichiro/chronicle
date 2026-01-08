@@ -5,6 +5,7 @@ import remarkToc from "remark-toc";
 import remarkCollapse from "remark-collapse";
 import remarkMath from "remark-math";
 import rehypeMathjax from "rehype-mathjax";
+import remarkMermaid from "remark-mermaidjs";
 import {
   transformerNotationDiff,
   transformerNotationHighlight,
@@ -24,6 +25,7 @@ export default defineConfig({
   markdown: {
     remarkPlugins: [
       remarkMath,
+      remarkMermaid,
       remarkToc,
       [remarkCollapse, { test: "Table of contents" }],
     ],
