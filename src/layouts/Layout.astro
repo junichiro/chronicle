@@ -14,6 +14,7 @@ export interface Props {
   pubDatetime?: Date;
   modDatetime?: Date | null;
   scrollSmooth?: boolean;
+  tags?: string[];
 }
 
 const {
@@ -26,25 +27,53 @@ const {
   pubDatetime,
   modDatetime,
   scrollSmooth = false,
+  tags = [],
 } = Astro.props;
 
 const socialImageURL = new URL(ogImage, Astro.url);
 
-const structuredData = {
-  "@context": "https://schema.org",
-  "@type": "BlogPosting",
-  headline: `${title}`,
-  image: `${socialImageURL}`,
-  datePublished: `${pubDatetime?.toISOString()}`,
-  ...(modDatetime && { dateModified: modDatetime.toISOString() }),
-  author: [
-    {
-      "@type": "Person",
-      name: `${author}`,
-      ...(profile && { url: profile }),
-    },
-  ],
-};
+// Use BlogPosting schema for blog posts, WebSite schema for other pages
+const structuredData = pubDatetime
+  ? {
+      "@context": "https://schema.org",
+      "@type": "BlogPosting",
+      headline: `${title}`,
+      description: `${description}`,
+      image: `${socialImageURL}`,
+      datePublished: `${pubDatetime.toISOString()}`,
+      ...(modDatetime && { dateModified: modDatetime.toISOString() }),
+      author: [
+        {
+          "@type": "Person",
+          name: `${author}`,
+          ...(profile && { url: profile }),
+        },
+      ],
+      publisher: {
+        "@type": "Person",
+        name: `${author}`,
+        ...(profile && { url: profile }),
+      },
+      mainEntityOfPage: {
+        "@type": "WebPage",
+        "@id": `${canonicalURL}`,
+      },
+      ...(tags.length > 0 && { keywords: tags.join(", ") }),
+      inLanguage: SITE.lang,
+    }
+  : {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      name: `${SITE.title}`,
+      description: `${SITE.desc}`,
+      url: `${SITE.website}`,
+      inLanguage: SITE.lang,
+      author: {
+        "@type": "Person",
+        name: `${author}`,
+        ...(profile && { url: profile }),
+      },
+    };
 ---
 
 <!doctype html>
@@ -81,10 +110,12 @@ const structuredData = {
     <link rel="sitemap" href="/sitemap-index.xml" />
 
     <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="article" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonicalURL} />
     <meta property="og:image" content={socialImageURL} />
+    <meta property="og:locale" content={SITE.lang === "ja" ? "ja_JP" : "en_US"} />
 
     <!-- Article Published/Modified time -->
     {
@@ -103,6 +134,9 @@ const structuredData = {
         />
       )
     }
+
+    <!-- Article Tags -->
+    {tags.map(tag => <meta property="article:tag" content={tag} />)}
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image" />
