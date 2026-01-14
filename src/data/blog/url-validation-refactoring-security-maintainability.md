@@ -272,7 +272,7 @@ class ProposalDocumentUrlValidatorTest {
         fun `127帯域全体を拒否する`(url: String) { /* ... */ }
     }
 
-    // ... 合計 22 テストケース
+    // ... 合計 23 テストケース
 }
 ```
 
