@@ -4,7 +4,7 @@ pubDatetime: 2026-01-30T14:13:45+09:00
 title: "「架電アクティビティ作成」に 4 つの仕事をさせていませんか？ — 単一責任の原則で Rails サービスを分解する"
 slug: rails-srp-activity-service-refactoring
 featured: true
-draft: true
+draft: false
 tags:
   - rails
   - refactoring
