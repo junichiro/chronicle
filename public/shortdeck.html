@@ -173,7 +173,7 @@ const PLAYER_NAMES = ['P1','P2','P3','P4','P5','P6','P7','P8','P9'];
 
 // Short Deck hand rankings (higher = better)
 // RF=9, SF=8, Quads=7, Flush=6, FullHouse=5, Straight=4, Trips=3, TwoPair=2, OnePair=1, HighCard=0
-const HAND_NAMES = ['ハイカード','ワンペア','ツーペア','スリーカード','ストレート','フルハウス','フラッシュ','フォーカード','ストレートフラッシュ','ロイヤルフラッシュ'];
+const HAND_NAMES = ['ハイカード','ワンペア','ツーペア','トリップス','ストレート','フルハウス','フラッシュ','クワッズ','ストレートフラッシュ','ロイヤルフラッシュ'];
 
 let deck, fullDeck, playerHands, boardCards, stage, autoTimer, winners;
 let playerEvals = null;
@@ -232,7 +232,7 @@ function renderPlayers() {
     html += cardHTML(hand[0]) + cardHTML(hand[1]);
     html += `</div>`;
     if (!isFolded) {
-      html += `<div class="player-info">${ev ? getHandLabel(ev, dr) : ''}</div>`;
+      html += `<div class="player-info">${ev ? getHandLabel(ev, dr, hand, boardCards) : ''}</div>`;
       if (eq !== null && stage < 4) {
         html += `<div class="player-equity">${eq}%</div>`;
       } else {
@@ -360,64 +360,71 @@ function evaluateBest(holeCards, board) {
 }
 
 // ======= DRAW DETECTION =======
-function detectDraws(holeCards, board) {
+function detectDraws(holeCards, board, currentRank) {
   if (board.length === 0 || board.length === 5) return [];
   const allCards = [...holeCards, ...board];
   const draws = [];
   
-  // Flush draw: 4 of same suit
-  const suitCounts = {};
-  for (const c of allCards) suitCounts[c.suit] = (suitCounts[c.suit] || 0) + 1;
-  for (const s in suitCounts) {
-    if (suitCounts[s] === 4) draws.push('FD');
+  // Flush draw: 4 of same suit (only show if current hand < flush=6)
+  if (currentRank < 6) {
+    const suitCounts = {};
+    for (const c of allCards) suitCounts[c.suit] = (suitCounts[c.suit] || 0) + 1;
+    for (const s in suitCounts) {
+      if (suitCounts[s] === 4) draws.push('FD');
+    }
   }
   
-  // Straight draw detection
-  const vals = [...new Set(allCards.map(c => RANK_VAL[c.rank]))].sort((a,b) => a - b);
-  // Also treat A as low (value 5) for A6789 wheel
-  const valsWithLowA = vals.includes(14) ? [5, ...vals] : [...vals];
-  const uniqueVals = [...new Set(valsWithLowA)].sort((a,b) => a - b);
-  
-  // Check all windows of 5 consecutive values (in short deck: 6-A, gaps of 1)
-  let hasOESD = false;
-  let hasGutshot = false;
-  
-  // For short deck, possible straights are: 6-T, 7-J, 8-Q, 9-K, T-A, and A(5)-6-7-8-9
-  const straightStarts = [5, 6, 7, 8, 9, 10]; // 5 = A-low
-  for (const start of straightStarts) {
-    const needed = [start, start+1, start+2, start+3, start+4];
-    // Adjust: if start is 5, the straight is A,6,7,8,9 → vals 5,6,7,8,9
-    let haveCount = 0;
-    for (const n of needed) {
-      if (uniqueVals.includes(n)) haveCount++;
-    }
-    if (haveCount === 4) {
-      // Check if it's open-ended or gutshot
-      // OESD: missing card is at one of the ends
+  // Straight draw (only show if current hand < straight=4)
+  if (currentRank < 4) {
+    const vals = [...new Set(allCards.map(c => RANK_VAL[c.rank]))].sort((a,b) => a - b);
+    const valsWithLowA = vals.includes(14) ? [5, ...vals] : [...vals];
+    const uniqueVals = [...new Set(valsWithLowA)].sort((a,b) => a - b);
+    
+    // Count how many distinct ranks complete ANY straight
+    const completingRanks = new Set();
+    const straightStarts = [5, 6, 7, 8, 9, 10];
+    for (const start of straightStarts) {
+      const needed = [start, start+1, start+2, start+3, start+4];
       const missing = needed.filter(n => !uniqueVals.includes(n));
       if (missing.length === 1) {
-        const m = missing[0];
-        if (m === needed[0] || m === needed[4]) {
-          hasOESD = true;
-        } else {
-          hasGutshot = true;
-        }
+        // This rank completes a straight
+        // Map value 5 back to 14 (Ace)
+        completingRanks.add(missing[0] === 5 ? 14 : missing[0]);
       }
     }
+    
+    if (completingRanks.size >= 2) {
+      draws.push('OESD');
+    } else if (completingRanks.size === 1) {
+      draws.push('GS');
+    }
   }
-  
-  if (hasOESD) draws.push('OESD');
-  else if (hasGutshot) draws.push('GS');
   
   return draws;
 }
 
-function getHandLabel(ev, draws) {
+function getTripsLabel(holeCards, board) {
+  if (board.length === 0) return 'ポケット';
+  // Find the trips rank
+  const allCards = [...holeCards, ...board];
+  const counts = {};
+  for (const c of allCards) counts[c.rank] = (counts[c.rank] || 0) + 1;
+  const tripsRank = Object.keys(counts).find(r => counts[r] >= 3);
+  if (!tripsRank) return 'トリップス';
+  
+  const holeMatch = holeCards.filter(c => c.rank === tripsRank).length;
+  if (holeMatch === 2) return 'セット';
+  return 'トリップス';
+}
+
+function getHandLabel(ev, draws, holeCards, board) {
   let label = HAND_NAMES[ev.rank];
+  // Override for trips/set distinction
+  if (ev.rank === 3) label = getTripsLabel(holeCards, board);
   if (draws.length > 0) {
     const drawLabels = draws.map(d => {
       if (d === 'FD') return 'Fドロー';
-      if (d === 'OESD') return 'OESDドロー';
+      if (d === 'OESD') return 'OESD';
       if (d === 'GS') return 'ガットショット';
       return d;
     });
@@ -513,7 +520,7 @@ function calcEquities() {
 
 function updateEvals() {
   playerEvals = playerHands.map(h => evaluateBest(h, boardCards));
-  playerDraws = playerHands.map(h => detectDraws(h, boardCards));
+  playerDraws = playerHands.map((h, i) => detectDraws(h, boardCards, playerEvals[i].rank));
 }
 
 function updateEquities() {
