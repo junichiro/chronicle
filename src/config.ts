@@ -2,7 +2,7 @@ export const SITE = {
   website: "https://chronicle.junichiro.co.uk/",
   author: "junichiro",
   profile: "https://github.com/junichiro",
-  desc: "技術と日常の記録",
+  desc: "ソフトウェアエンジニアリング・設計原則・リファクタリングの実践記録。SOLID原則、Spring Boot、Rails、Python、TypeScriptの設計パターンとポーカー戦略。",
   title: "Chronicle",
   ogImage: "og-image.jpg",
   lightAndDarkMode: true,
