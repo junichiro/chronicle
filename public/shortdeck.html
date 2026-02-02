@@ -56,6 +56,8 @@
   }
   .player.winner .player-name { color: #ffd54f; font-weight: bold; }
   .player.winner .player-info { color: #ffd54f; font-weight: bold; }
+  .player.folded { opacity: 0.3; }
+  .player.folded .player-name::after { content: ' FOLD'; color: #f44; font-size: 0.9em; }
   
   .card {
     width: 30px;
@@ -176,6 +178,8 @@ const HAND_NAMES = ['ハイカード','ワンペア','ツーペア','スリー�
 let deck, fullDeck, playerHands, boardCards, stage, autoTimer, winners;
 let playerEvals = null;
 let playerEquities = null;
+let playerDraws = null;
+let folded = new Array(9).fill(false);
 
 function makeDeck() {
   const d = [];
@@ -219,16 +223,23 @@ function renderPlayers() {
     const hand = playerHands[i];
     const ev = playerEvals ? playerEvals[i] : null;
     const eq = playerEquities ? playerEquities[i] : null;
-    html += `<div class="player ${isWinner ? 'winner' : ''}">
+    const dr = playerDraws ? playerDraws[i] : [];
+    const isFolded = folded[i];
+    const cls = isWinner ? 'winner' : (isFolded ? 'folded' : '');
+    html += `<div class="player ${cls}" onclick="foldPlayer(${i})">
       <div class="player-name">${isWinner ? '🏆 ' : ''}${PLAYER_NAMES[i]}</div>
       <div class="player-hand">`;
     html += cardHTML(hand[0]) + cardHTML(hand[1]);
     html += `</div>`;
-    html += `<div class="player-info">${ev ? HAND_NAMES[ev.rank] : ''}</div>`;
-    if (eq !== null && stage < 4) {
-      html += `<div class="player-equity">${eq}%</div>`;
+    if (!isFolded) {
+      html += `<div class="player-info">${ev ? getHandLabel(ev, dr) : ''}</div>`;
+      if (eq !== null && stage < 4) {
+        html += `<div class="player-equity">${eq}%</div>`;
+      } else {
+        html += `<div class="player-equity"></div>`;
+      }
     } else {
-      html += `<div class="player-equity"></div>`;
+      html += `<div class="player-info"></div><div class="player-equity"></div>`;
     }
     html += `</div>`;
   }
@@ -316,19 +327,15 @@ function evaluateBest(holeCards, board) {
   if (allCards.length < 5) {
     // Less than 5 cards: evaluate what we can
     if (allCards.length === 2) {
-      // Preflop: just check pair or high card
       if (allCards[0].rank === allCards[1].rank) {
         const v = RANK_VAL[allCards[0].rank];
-        return { rank: 1, score: [1, v] }; // pair
+        return { rank: 1, score: [1, v] };
       }
       const vals = allCards.map(c => RANK_VAL[c.rank]).sort((a,b) => b-a);
-      return { rank: 0, score: [0, ...vals] }; // high card
+      return { rank: 0, score: [0, ...vals] };
     }
-    // 3 or 4 cards: find best from available
     if (allCards.length >= 3) {
-      // Check for trips, pair, etc from available cards
       const vals = allCards.map(c => RANK_VAL[c.rank]).sort((a,b) => b-a);
-      const suits = allCards.map(c => c.suit);
       const counts = {};
       for (const v of vals) counts[v] = (counts[v] || 0) + 1;
       const groups = Object.entries(counts).map(([v,c]) => ({val:+v, count:c}));
@@ -343,7 +350,6 @@ function evaluateBest(holeCards, board) {
       return { rank: 0, score: [0, ...vals] };
     }
   }
-  // 5+ cards: find best 5-card hand
   const combos = getCombinations(allCards, 5);
   let best = null;
   for (const combo of combos) {
@@ -353,6 +359,73 @@ function evaluateBest(holeCards, board) {
   return best;
 }
 
+// ======= DRAW DETECTION =======
+function detectDraws(holeCards, board) {
+  if (board.length === 0 || board.length === 5) return [];
+  const allCards = [...holeCards, ...board];
+  const draws = [];
+  
+  // Flush draw: 4 of same suit
+  const suitCounts = {};
+  for (const c of allCards) suitCounts[c.suit] = (suitCounts[c.suit] || 0) + 1;
+  for (const s in suitCounts) {
+    if (suitCounts[s] === 4) draws.push('FD');
+  }
+  
+  // Straight draw detection
+  const vals = [...new Set(allCards.map(c => RANK_VAL[c.rank]))].sort((a,b) => a - b);
+  // Also treat A as low (value 5) for A6789 wheel
+  const valsWithLowA = vals.includes(14) ? [5, ...vals] : [...vals];
+  const uniqueVals = [...new Set(valsWithLowA)].sort((a,b) => a - b);
+  
+  // Check all windows of 5 consecutive values (in short deck: 6-A, gaps of 1)
+  let hasOESD = false;
+  let hasGutshot = false;
+  
+  // For short deck, possible straights are: 6-T, 7-J, 8-Q, 9-K, T-A, and A(5)-6-7-8-9
+  const straightStarts = [5, 6, 7, 8, 9, 10]; // 5 = A-low
+  for (const start of straightStarts) {
+    const needed = [start, start+1, start+2, start+3, start+4];
+    // Adjust: if start is 5, the straight is A,6,7,8,9 → vals 5,6,7,8,9
+    let haveCount = 0;
+    for (const n of needed) {
+      if (uniqueVals.includes(n)) haveCount++;
+    }
+    if (haveCount === 4) {
+      // Check if it's open-ended or gutshot
+      // OESD: missing card is at one of the ends
+      const missing = needed.filter(n => !uniqueVals.includes(n));
+      if (missing.length === 1) {
+        const m = missing[0];
+        if (m === needed[0] || m === needed[4]) {
+          hasOESD = true;
+        } else {
+          hasGutshot = true;
+        }
+      }
+    }
+  }
+  
+  if (hasOESD) draws.push('OESD');
+  else if (hasGutshot) draws.push('GS');
+  
+  return draws;
+}
+
+function getHandLabel(ev, draws) {
+  let label = HAND_NAMES[ev.rank];
+  if (draws.length > 0) {
+    const drawLabels = draws.map(d => {
+      if (d === 'FD') return 'Fドロー';
+      if (d === 'OESD') return 'OESDドロー';
+      if (d === 'GS') return 'ガットショット';
+      return d;
+    });
+    label += ' + ' + drawLabels.join(', ');
+  }
+  return label;
+}
+
 function compareScores(a, b) {
   for (let i = 0; i < Math.max(a.length, b.length); i++) {
     const av = a[i] || 0, bv = b[i] || 0;
@@ -360,6 +433,21 @@ function compareScores(a, b) {
     if (av < bv) return -1;
   }
   return 0;
+}
+
+function foldPlayer(idx) {
+  if (stage >= 4 || folded[idx]) return; // Can't fold at showdown or if already folded
+  folded[idx] = true;
+  // Check if only 1 player left
+  const active = folded.filter(f => !f).length;
+  if (active <= 1) {
+    // Auto showdown - last player wins
+    doShowdown();
+    return;
+  }
+  updateEvals();
+  renderPlayers();
+  updateEquities();
 }
 
 // ======= EQUITY CALCULATION (Monte Carlo) =======
@@ -377,11 +465,11 @@ function calcEquities() {
   
   const boardNeeded = 5 - boardCards.length;
   if (boardNeeded === 0) {
-    // River: exact calculation
     const evals = playerHands.map(h => evaluateBest(h, boardCards));
     let bestScore = null;
     let winnerIdxs = [];
     for (let i = 0; i < 9; i++) {
+      if (folded[i]) continue;
       const cmp = bestScore ? compareScores(evals[i].score, bestScore) : 1;
       if (cmp > 0) { bestScore = evals[i].score; winnerIdxs = [i]; }
       else if (cmp === 0) winnerIdxs.push(i);
@@ -395,22 +483,20 @@ function calcEquities() {
     return eq;
   }
   
-  // Monte Carlo
   const SIMS = 800;
   const wins = new Array(9).fill(0);
   
   for (let sim = 0; sim < SIMS; sim++) {
-    // Shuffle remaining and pick boardNeeded cards
     for (let i = remaining.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [remaining[i], remaining[j]] = [remaining[j], remaining[i]];
     }
     const simBoard = [...boardCards, ...remaining.slice(0, boardNeeded)];
     
-    // Evaluate all hands
     let bestScore = null;
     let winnerIdxs = [];
     for (let i = 0; i < 9; i++) {
+      if (folded[i]) continue;
       const ev = evaluateBest(playerHands[i], simBoard);
       const cmp = bestScore ? compareScores(ev.score, bestScore) : 1;
       if (cmp > 0) { bestScore = ev.score; winnerIdxs = [i]; }
@@ -426,9 +512,8 @@ function calcEquities() {
 // ======= GAME FLOW =======
 
 function updateEvals() {
-  if (boardCards.length >= 3 || stage === 0) {
-    playerEvals = playerHands.map(h => evaluateBest(h, boardCards));
-  }
+  playerEvals = playerHands.map(h => evaluateBest(h, boardCards));
+  playerDraws = playerHands.map(h => detectDraws(h, boardCards));
 }
 
 function updateEquities() {
@@ -450,6 +535,8 @@ function newHand() {
   winners = null;
   playerEvals = null;
   playerEquities = null;
+  playerDraws = null;
+  folded = new Array(9).fill(false);
 
   for (let i = 0; i < 9; i++) {
     playerHands.push([deck.pop(), deck.pop()]);
@@ -463,6 +550,27 @@ function newHand() {
   updateEquities();
 }
 
+function doShowdown() {
+  stage = 4;
+  playerEvals = playerHands.map(h => evaluateBest(h, boardCards));
+  playerDraws = playerHands.map(() => []);
+  let bestScore = null;
+  let winnerIdxs = [];
+  for (let i = 0; i < 9; i++) {
+    if (folded[i]) continue;
+    const cmp = bestScore ? compareScores(playerEvals[i].score, bestScore) : 1;
+    if (cmp > 0) { bestScore = playerEvals[i].score; winnerIdxs = [i]; }
+    else if (cmp === 0) winnerIdxs.push(i);
+  }
+  winners = winnerIdxs;
+  playerEquities = null;
+  renderBoard();
+  renderPlayers();
+  updateStageLabel();
+  document.getElementById('nextBtn').disabled = true;
+  document.getElementById('computing').textContent = '';
+}
+
 function nextStreet() {
   if (stage >= 4) return;
   stage++;
@@ -472,24 +580,10 @@ function nextStreet() {
   } else if (stage === 2) {
     deck.pop(); boardCards.push(deck.pop());
   } else if (stage === 3) {
+    // River → auto showdown
     deck.pop(); boardCards.push(deck.pop());
-  } else if (stage === 4) {
-    // Showdown
-    playerEvals = playerHands.map(h => evaluateBest(h, boardCards));
-    let bestScore = null;
-    let winnerIdxs = [];
-    for (let i = 0; i < 9; i++) {
-      const cmp = bestScore ? compareScores(playerEvals[i].score, bestScore) : 1;
-      if (cmp > 0) { bestScore = playerEvals[i].score; winnerIdxs = [i]; }
-      else if (cmp === 0) winnerIdxs.push(i);
-    }
-    winners = winnerIdxs;
-    playerEquities = null;
     renderBoard();
-    renderPlayers();
-    updateStageLabel();
-    document.getElementById('nextBtn').disabled = true;
-    document.getElementById('computing').textContent = '';
+    doShowdown();
     return;
   }
 
@@ -526,7 +620,7 @@ function autoStep() {
     autoTimer = setTimeout(autoStep, 2500);
   } else {
     nextStreet();
-    const delay = stage === 1 ? 2500 : stage === 4 ? 3500 : 2000;
+    const delay = stage === 1 ? 2500 : stage >= 4 ? 3500 : 2000;
     autoTimer = setTimeout(autoStep, delay);
   }
 }
