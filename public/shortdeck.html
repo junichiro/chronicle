@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Short Deck (6+) Viewer</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { 
+    background: #1a472a; 
+    color: #fff; 
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 8px;
+  }
+  h1 { font-size: 1.1em; margin-bottom: 2px; }
+  .subtitle { color: #aaa; font-size: 0.7em; margin-bottom: 8px; }
+  
+  .board-area {
+    background: rgba(0,0,0,0.3);
+    border-radius: 12px;
+    padding: 8px 16px;
+    margin-bottom: 8px;
+    text-align: center;
+  }
+  .board-label { font-size: 0.65em; color: #8fb; margin-bottom: 4px; }
+  .board-cards { display: flex; gap: 4px; justify-content: center; min-height: 52px; align-items: center; }
+  
+  .players-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 5px;
+    max-width: 360px;
+    width: 100%;
+    margin-bottom: 8px;
+  }
+  
+  .player {
+    background: rgba(0,0,0,0.25);
+    border-radius: 8px;
+    padding: 4px;
+    text-align: center;
+    transition: all 0.3s;
+  }
+  .player-name { font-size: 0.6em; color: #aaa; margin-bottom: 2px; }
+  .player-hand { display: flex; gap: 2px; justify-content: center; }
+  .player-rank { font-size: 0.55em; color: #aaa; margin-top: 2px; min-height: 0.9em; }
+  .player.winner { 
+    background: rgba(255,200,0,0.2); 
+    border: 2px solid #ffd54f;
+    box-shadow: 0 0 8px rgba(255,200,0,0.3);
+  }
+  .player.winner .player-name { color: #ffd54f; font-weight: bold; }
+  .player.winner .player-rank { color: #ffd54f; font-weight: bold; }
+  
+  .card {
+    width: 30px;
+    height: 44px;
+    background: #fff;
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 0.85em;
+    line-height: 1;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    user-select: none;
+  }
+  .card.red { color: #d32f2f; }
+  .card.black { color: #222; }
+  .card .rank { font-size: 0.85em; }
+  .card .suit { font-size: 0.7em; margin-top: -1px; }
+  
+  .board-card {
+    width: 38px;
+    height: 54px;
+    font-size: 1em;
+  }
+  .board-card .rank { font-size: 0.95em; }
+  .board-card .suit { font-size: 0.8em; }
+  
+  .placeholder {
+    width: 38px;
+    height: 54px;
+    border: 2px dashed rgba(255,255,255,0.15);
+    border-radius: 4px;
+  }
+  
+  .controls {
+    display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 6px;
+  }
+  button {
+    background: #2e7d32;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-size: 0.85em;
+    cursor: pointer;
+    transition: background 0.2s;
+    font-weight: bold;
+  }
+  button:hover { background: #388e3c; }
+  button:active { background: #1b5e20; }
+  button:disabled { background: #555; cursor: default; }
+  button.deal-btn { background: #c6a700; color: #1a472a; }
+  button.deal-btn:hover { background: #d4b800; }
+  
+  .info {
+    color: #8fb;
+    font-size: 0.6em;
+    text-align: center;
+    margin-top: 4px;
+    opacity: 0.7;
+  }
+  
+  .stage-label {
+    font-size: 0.8em;
+    color: #ffd54f;
+    margin-bottom: 2px;
+    font-weight: bold;
+    min-height: 1em;
+  }
+
+  .card-enter { animation: cardIn 0.3s ease-out; }
+  @keyframes cardIn {
+    from { transform: scale(0.5) rotate(-10deg); opacity: 0; }
+    to { transform: scale(1) rotate(0); opacity: 1; }
+  }
+</style>
+</head>
+<body>
+
+<h1>🃏 Short Deck (6+) Viewer</h1>
+<div class="subtitle">36枚デッキ（2〜5除去）/ 9人テーブル</div>
+
+<div class="board-area">
+  <div class="stage-label" id="stageLabel"></div>
+  <div class="board-label">BOARD</div>
+  <div class="board-cards" id="board"></div>
+</div>
+
+<div class="players-grid" id="players"></div>
+
+<div class="controls">
+  <button class="deal-btn" id="dealBtn" onclick="newHand()">🂠 DEAL</button>
+  <button id="nextBtn" onclick="nextStreet()" disabled>NEXT →</button>
+  <button id="autoBtn" onclick="toggleAuto()">▶ AUTO</button>
+</div>
+
+<div class="info">
+  Short Deck ハンドランク: RF > SF > Quads > <strong>Flush</strong> > Full House > Trips > Straight > 2P > 1P > High<br>
+  A6789 = 最小ストレート / フラッシュ &gt; フルハウス
+</div>
+
+<script>
+const SUITS = ['s','h','d','c'];
+const SUIT_DISPLAY = {'s':'♠','h':'♥','d':'♦','c':'♣'};
+const SUIT_COLORS = {'s':'black','c':'black','h':'red','d':'red'};
+const RANKS = ['6','7','8','9','T','J','Q','K','A'];
+const RANK_VAL = {'6':6,'7':7,'8':8,'9':9,'T':10,'J':11,'Q':12,'K':13,'A':14};
+const PLAYER_NAMES = ['P1','P2','P3','P4','P5','P6','P7','P8','P9'];
+
+// Short Deck hand rankings (higher = better)
+// RF=9, SF=8, Quads=7, Flush=6, FullHouse=5, Trips=4, Straight=3, TwoPair=2, OnePair=1, HighCard=0
+const HAND_NAMES = ['ハイカード','ワンペア','ツーペア','ストレート','スリーカード','フルハウス','フラッシュ','フォーカード','ストレートフラッシュ','ロイヤルフラッシュ'];
+
+let deck, playerHands, boardCards, stage, autoTimer, winners;
+
+function makeDeck() {
+  const d = [];
+  for (const s of SUITS) for (const r of RANKS) d.push({ rank: r, suit: s });
+  for (let i = d.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [d[i], d[j]] = [d[j], d[i]];
+  }
+  return d;
+}
+
+function cardHTML(card, extra = '') {
+  const color = SUIT_COLORS[card.suit];
+  const disp = SUIT_DISPLAY[card.suit];
+  return `<div class="card ${color} ${extra} card-enter">
+    <span class="rank">${card.rank}</span>
+    <span class="suit">${disp}</span>
+  </div>`;
+}
+
+function renderBoard() {
+  const el = document.getElementById('board');
+  let html = '';
+  for (let i = 0; i < 5; i++) {
+    if (i < boardCards.length) {
+      html += cardHTML(boardCards[i], 'board-card');
+    } else {
+      html += '<div class="placeholder"></div>';
+    }
+  }
+  el.innerHTML = html;
+}
+
+function renderPlayers() {
+  const el = document.getElementById('players');
+  let html = '';
+  for (let i = 0; i < 9; i++) {
+    const isWinner = winners && winners.includes(i);
+    const hand = playerHands[i];
+    const eval_ = (stage === 4 && playerEvals) ? playerEvals[i] : null;
+    html += `<div class="player ${isWinner ? 'winner' : ''}">
+      <div class="player-name">${isWinner ? '🏆 ' : ''}${PLAYER_NAMES[i]}</div>
+      <div class="player-hand">`;
+    html += cardHTML(hand[0]) + cardHTML(hand[1]);
+    html += `</div>`;
+    html += `<div class="player-rank">${eval_ ? HAND_NAMES[eval_.rank] : ''}</div>`;
+    html += `</div>`;
+  }
+  el.innerHTML = html;
+}
+
+function updateStageLabel() {
+  const labels = ['PREFLOP', 'FLOP', 'TURN', 'RIVER', 'SHOWDOWN'];
+  document.getElementById('stageLabel').textContent = labels[stage] || '';
+}
+
+// ======= HAND EVALUATION (Short Deck) =======
+
+function getCombinations(arr, k) {
+  if (k === 0) return [[]];
+  if (arr.length < k) return [];
+  const [first, ...rest] = arr;
+  const withFirst = getCombinations(rest, k - 1).map(c => [first, ...c]);
+  const without = getCombinations(rest, k);
+  return [...withFirst, ...without];
+}
+
+function evaluateHand5(cards) {
+  // cards: array of 5 {rank, suit}
+  const vals = cards.map(c => RANK_VAL[c.rank]).sort((a, b) => b - a);
+  const suits = cards.map(c => c.suit);
+  
+  const isFlush = suits.every(s => s === suits[0]);
+  
+  // Check straight
+  let isStraight = false;
+  let straightHigh = 0;
+  
+  // Normal straight check
+  const unique = [...new Set(vals)].sort((a, b) => b - a);
+  if (unique.length === 5) {
+    if (unique[0] - unique[4] === 4) {
+      isStraight = true;
+      straightHigh = unique[0];
+    }
+    // A6789 wheel (A acts as 5 equivalent)
+    if (!isStraight && unique[0] === 14 && unique[1] === 9 && unique[2] === 8 && unique[3] === 7 && unique[4] === 6) {
+      isStraight = true;
+      straightHigh = 9; // 9-high straight
+    }
+  }
+  
+  // Count ranks
+  const counts = {};
+  for (const v of vals) counts[v] = (counts[v] || 0) + 1;
+  const groups = Object.entries(counts).map(([v, c]) => ({ val: +v, count: c }));
+  groups.sort((a, b) => b.count - a.count || b.val - a.val);
+  
+  // Determine hand rank
+  const isRoyal = isFlush && isStraight && straightHigh === 14 && vals.includes(10);
+  
+  if (isRoyal) return { rank: 9, score: [9, 14], name: 'ロイヤルフラッシュ' };
+  if (isFlush && isStraight) return { rank: 8, score: [8, straightHigh], name: 'ストレートフラッシュ' };
+  
+  if (groups[0].count === 4) {
+    const kicker = groups[1].val;
+    return { rank: 7, score: [7, groups[0].val, kicker], name: 'フォーカード' };
+  }
+  
+  // Short Deck: Flush > Full House
+  if (isFlush) {
+    return { rank: 6, score: [6, ...vals], name: 'フラッシュ' };
+  }
+  
+  if (groups[0].count === 3 && groups[1].count === 2) {
+    return { rank: 5, score: [5, groups[0].val, groups[1].val], name: 'フルハウス' };
+  }
+  
+  if (groups[0].count === 3) {
+    const kickers = groups.filter(g => g.count === 1).map(g => g.val).sort((a, b) => b - a);
+    return { rank: 4, score: [4, groups[0].val, ...kickers], name: 'スリーカード' };
+  }
+  
+  if (isStraight) {
+    return { rank: 3, score: [3, straightHigh], name: 'ストレート' };
+  }
+  
+  if (groups[0].count === 2 && groups[1].count === 2) {
+    const pairs = [groups[0].val, groups[1].val].sort((a, b) => b - a);
+    const kicker = groups[2].val;
+    return { rank: 2, score: [2, pairs[0], pairs[1], kicker], name: 'ツーペア' };
+  }
+  
+  if (groups[0].count === 2) {
+    const kickers = groups.filter(g => g.count === 1).map(g => g.val).sort((a, b) => b - a);
+    return { rank: 1, score: [1, groups[0].val, ...kickers], name: 'ワンペア' };
+  }
+  
+  return { rank: 0, score: [0, ...vals], name: 'ハイカード' };
+}
+
+function evaluateBest(holeCards, board) {
+  const all7 = [...holeCards, ...board];
+  const combos = getCombinations(all7, 5);
+  let best = null;
+  for (const combo of combos) {
+    const ev = evaluateHand5(combo);
+    if (!best || compareScores(ev.score, best.score) > 0) {
+      best = ev;
+    }
+  }
+  return best;
+}
+
+function compareScores(a, b) {
+  for (let i = 0; i < Math.max(a.length, b.length); i++) {
+    const av = a[i] || 0, bv = b[i] || 0;
+    if (av > bv) return 1;
+    if (av < bv) return -1;
+  }
+  return 0;
+}
+
+let playerEvals = null;
+
+function determineWinners() {
+  playerEvals = [];
+  for (let i = 0; i < 9; i++) {
+    playerEvals.push(evaluateBest(playerHands[i], boardCards));
+  }
+  
+  let bestScore = null;
+  let winnerIdxs = [];
+  for (let i = 0; i < 9; i++) {
+    const cmp = bestScore ? compareScores(playerEvals[i].score, bestScore) : 1;
+    if (cmp > 0) {
+      bestScore = playerEvals[i].score;
+      winnerIdxs = [i];
+    } else if (cmp === 0) {
+      winnerIdxs.push(i);
+    }
+  }
+  return winnerIdxs;
+}
+
+// ======= GAME FLOW =======
+
+function newHand() {
+  stopAuto();
+  deck = makeDeck();
+  playerHands = [];
+  boardCards = [];
+  stage = 0;
+  winners = null;
+  playerEvals = null;
+
+  for (let i = 0; i < 9; i++) {
+    playerHands.push([deck.pop(), deck.pop()]);
+  }
+
+  renderPlayers();
+  renderBoard();
+  updateStageLabel();
+  document.getElementById('nextBtn').disabled = false;
+}
+
+function nextStreet() {
+  if (stage >= 4) return;
+  stage++;
+
+  if (stage === 1) {
+    deck.pop(); boardCards.push(deck.pop(), deck.pop(), deck.pop());
+  } else if (stage === 2) {
+    deck.pop(); boardCards.push(deck.pop());
+  } else if (stage === 3) {
+    deck.pop(); boardCards.push(deck.pop());
+  } else if (stage === 4) {
+    winners = determineWinners();
+    renderBoard();
+    renderPlayers();
+    updateStageLabel();
+    document.getElementById('nextBtn').disabled = true;
+    return;
+  }
+
+  renderBoard();
+  renderPlayers();
+  updateStageLabel();
+}
+
+let autoRunning = false;
+function toggleAuto() {
+  if (autoRunning) stopAuto(); else startAuto();
+}
+
+function startAuto() {
+  autoRunning = true;
+  document.getElementById('autoBtn').textContent = '⏸ STOP';
+  document.getElementById('autoBtn').style.background = '#c62828';
+  autoStep();
+}
+
+function stopAuto() {
+  autoRunning = false;
+  clearTimeout(autoTimer);
+  document.getElementById('autoBtn').textContent = '▶ AUTO';
+  document.getElementById('autoBtn').style.background = '#2e7d32';
+}
+
+function autoStep() {
+  if (!autoRunning) return;
+  if (stage >= 4 || playerHands.length === 0) {
+    newHand();
+    autoTimer = setTimeout(autoStep, 1500);
+  } else {
+    nextStreet();
+    const delay = stage === 1 ? 2000 : stage === 4 ? 3000 : 1500;
+    autoTimer = setTimeout(autoStep, delay);
+  }
+}
+
+newHand();
+</script>
+</body>
+</html>
