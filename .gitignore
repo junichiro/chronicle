@@ -27,3 +27,7 @@ pnpm-debug.log*
 # pagefind
 
 public/pagefind
+
+# temporary files(includes materials)
+tmp/
+
