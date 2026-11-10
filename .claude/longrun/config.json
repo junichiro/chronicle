@@ -1,0 +1,7 @@
+{
+  "baseBranch": "main",
+  "productionBranch": "main",
+  "ciWorkflows": ["CI"],
+  "verify": ["pnpm run lint", "pnpm run build"],
+  "allow": ["Bash(pnpm install:*)"]
+}

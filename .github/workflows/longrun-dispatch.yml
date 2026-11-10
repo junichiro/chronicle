@@ -1,0 +1,39 @@
+# longrun（junichiro/claude-plugins）が入れたワークフロー。直すときはプラグイン側で直す。
+# 片づける issue があり、ほかの run が動いていないときだけ routine を API で起動する。
+# 下見は GitHub の REST だけで行うので、何もないときはモデルのトークンを使わない。
+name: longrun-dispatch
+
+on:
+  issues:
+    types: [opened, labeled, reopened]
+  # 持ち時間切れで残った issue を拾い直す
+  schedule:
+    - cron: "37 */3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: longrun-dispatch
+  cancel-in-progress: false
+
+jobs:
+  dispatch:
+    name: longrun-dispatch
+    # issue のイベントは、キューのラベルに関係するときだけ動かす
+    if: >-
+      github.event_name != 'issues' ||
+      (github.event.action == 'labeled' && github.event.label.name == 'longrun') ||
+      (github.event.action != 'labeled' && contains(github.event.issue.labels.*.name, 'longrun'))
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - run: node .claude/longrun/bin/actions.mjs dispatch
+        env:
+          GH_TOKEN: ${{ github.token }}
+          LONGRUN_ROUTINE_TOKEN: ${{ secrets.LONGRUN_ROUTINE_TOKEN }}

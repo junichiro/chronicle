@@ -1,0 +1,106 @@
+{
+  "version": "0.5.2",
+  "config": {
+    "baseBranch": "main",
+    "productionBranch": "main",
+    "headPrefix": "claude/",
+    "ciWorkflows": [
+      "CI"
+    ],
+    "queueLabel": "longrun",
+    "components": [
+      [
+        "dispatch",
+        true
+      ],
+      [
+        "sync",
+        false
+      ],
+      [
+        "automerge",
+        true
+      ]
+    ],
+    "verify": [
+      "pnpm run lint",
+      "pnpm run build"
+    ],
+    "allow": [
+      "Bash(pnpm install:*)"
+    ]
+  },
+  "files": {
+    ".claude/agents/longrun-reviewer.md": "2b76e9f575527c4b1352607e17493edb032d71c7f96d45339ee7383c3bfda2b0",
+    ".claude/longrun/bin/actions.mjs": "c221741f378c9d245e08a0e7f993b5c30e7c07fae96b4660764a5469432b3265",
+    ".claude/longrun/bin/longrun.mjs": "bde15dd380bee822f9af9f9d2a071be6e5ae8390335208a0591245500e4e692f",
+    ".claude/longrun/hooks/guard.mjs": "325b171f6abf5a6e3b6dbbc950e056742f6109b83014cbf1148b42667fe0073e",
+    ".claude/longrun/hooks/stop.mjs": "f78553dc1827ff60c628ba23296576096f03798038b8def095a12d464d61b361",
+    ".claude/longrun/lib/actions.mjs": "88a448ff989b9ba1b6bb0af19fb5bc4eb6ab7d7c36195c76d65c83476719f94a",
+    ".claude/longrun/lib/commands.mjs": "2821f3415227af047eabef5fcf773357f0d94248ffc8c18a7f7c86e2ce773186",
+    ".claude/longrun/lib/config.mjs": "577811c7fd7b39893158630dcbe345d6303dcf2a9be5f24ec46d108a530c4dbe",
+    ".claude/longrun/lib/context.mjs": "273204e0d6479e60ec0a45115398caf811cf21ddbac25143414d4d3a0cbbb58e",
+    ".claude/longrun/lib/doctor.mjs": "5e646526c3ea018d3587f7c4c1b0da328c20b320cad44690cb17d01982794b6b",
+    ".claude/longrun/lib/github.mjs": "2438b9e9e6bacf158e2d7176b4e032d6a6cc4e93e0b5a4e64af96122f55b3fd8",
+    ".claude/longrun/lib/guard.mjs": "1e14f332fd242ab4b861c5226248814684261162d708710f416f55ca81787283",
+    ".claude/longrun/lib/routine-api.mjs": "c1bc67394b4f4196b392b93427cc3602b9def95ba027832f6694e2cae32df21d",
+    ".claude/longrun/lib/rules.mjs": "f9806583bd66d91b370e74482fa2276f0bb9df1a446505756fee2e21d14e140b",
+    ".claude/skills/longrun/SKILL.md": "7d8d8e2522b21dd20ee1da78c12a9056dff1956415bfaae8d2cad4fd5d91e4ce",
+    ".github/workflows/longrun-automerge.yml": "bc5569fcbaa24fb7ea8252dca845eb9767eb4ab363a4a65934eb4e65bd58ce4d",
+    ".github/workflows/longrun-dispatch.yml": "0b4ae5bd1a16d2597e426800b0784ab045faa0779493fed76baaffe4cd373665",
+    ".claude/longrun/VERSION": "26e0ab83aa1ff6bd0ae3882787a92663aa19db128e1241ffc99375fb9ca0c121"
+  },
+  "settings": {
+    "additions": {
+      "hooks": {
+        "Stop": [
+          {
+            "hooks": [
+              {
+                "type": "command",
+                "command": "node \"$CLAUDE_PROJECT_DIR/.claude/longrun/hooks/stop.mjs\"",
+                "timeout": 120
+              }
+            ]
+          }
+        ],
+        "PreToolUse": [
+          {
+            "matcher": "Bash",
+            "hooks": [
+              {
+                "type": "command",
+                "command": "node \"$CLAUDE_PROJECT_DIR/.claude/longrun/hooks/guard.mjs\"",
+                "timeout": 30
+              }
+            ]
+          }
+        ]
+      },
+      "permissions": {
+        "allow": [
+          "Bash(node .claude/longrun/bin/longrun.mjs:*)",
+          "Bash(git fetch:*)",
+          "Bash(git switch:*)",
+          "Bash(git add:*)",
+          "Bash(git commit:*)",
+          "Bash(git push:*)",
+          "Bash(git rebase:*)",
+          "Bash(pnpm run lint:*)",
+          "Bash(pnpm run build:*)",
+          "Bash(pnpm install:*)"
+        ]
+      }
+    },
+    "created": {
+      "hooks": true,
+      "hookEvents": [
+        "Stop",
+        "PreToolUse"
+      ],
+      "permissions": true,
+      "allow": true,
+      "file": true
+    }
+  }
+}
