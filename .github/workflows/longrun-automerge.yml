@@ -1,0 +1,36 @@
+# longrun（junichiro/claude-plugins）が入れたワークフロー。直すときはプラグイン側で直す。
+# クラウドのエージェントにはマージの API が許されていないため、
+# main 宛ての claude/ の PR は、CI がすべて成功したらここでマージする。
+name: longrun-automerge
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+  # workflow_run を取りこぼしたときの拾い直し
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+  checks: read
+
+concurrency:
+  group: longrun-automerge
+  cancel-in-progress: false
+
+jobs:
+  automerge:
+    name: longrun-automerge
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - run: node .claude/longrun/bin/actions.mjs automerge
+        env:
+          GH_TOKEN: ${{ github.token }}

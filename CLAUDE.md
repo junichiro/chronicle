@@ -536,6 +536,21 @@ npm run preview
     └── publish.md            # /publish コマンド
 ```
 
+## longrun（issue の無人処理）
+
+[junichiro/claude-plugins](https://github.com/junichiro/claude-plugins) の longrun を `.claude/longrun/` に入れてある。ラベル `longrun` を付けた issue を、エージェントが人間の入力なしに片づける。
+
+- 運用は main だけ（`baseBranch` = `productionBranch` = `main`）。エージェントは `claude/` で始まるブランチから main 宛ての PR を作り、CI（`.github/workflows/ci.yml`）がすべて成功すると `longrun-automerge` が main にマージする。**マージされると Cloudflare Pages が本番に公開する**
+- 確認コマンド（PR の前に必ず実行する。CI と同じ）:
+  ```bash
+  pnpm install --frozen-lockfile
+  pnpm run lint
+  pnpm run build
+  ```
+- 設定は `.claude/longrun/config.json`。変えたら longrun のインストーラ（`node <claude-plugins>/plugins/longrun/install.mjs <このリポジトリ>`）を流し直す
+- 診断: `node .claude/longrun/bin/longrun.mjs doctor`
+- 記録は日ごとの issue（ラベル `longrun:journal`）に残る
+
 ## 参考リンク
 
 - [AstroPaper公式](https://github.com/satnaing/astro-paper)
