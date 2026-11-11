@@ -540,7 +540,9 @@ npm run preview
 
 [junichiro/claude-plugins](https://github.com/junichiro/claude-plugins) の longrun を `.claude/longrun/` に入れてある。ラベル `longrun` を付けた issue を、エージェントが人間の入力なしに片づける。
 
-- 運用は main だけ（`baseBranch` = `productionBranch` = `main`）。エージェントは `claude/` で始まるブランチから main 宛ての PR を作り、CI（`.github/workflows/ci.yml`）がすべて成功すると `longrun-automerge` が main にマージする。**マージされると Cloudflare Pages が本番に公開する**
+- 運用は main だけ（`baseBranch` = `productionBranch` = `main`）。自動マージはしない（`components.automerge: false`）
+- 流れ: エージェントは `draft/issue-<番号>` ブランチから main 宛ての PR を作る → Cloudflare Pages がプレビュー（`https://draft-issue-<番号>.chronicle-969.pages.dev/`）を出す → CI が通ると issue に `longrun:awaiting-merge` が付く → 人間がプレビューを確認し、OK なら PR をマージして公開する（`/publish` でもよい）
+- 記事は `draft: false` で書く（`draft: true` はプレビューにも出ないため）
 - 確認コマンド（PR の前に必ず実行する。CI と同じ）:
   ```bash
   pnpm install --frozen-lockfile

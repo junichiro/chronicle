@@ -13,7 +13,7 @@ GitHub の操作はすべて `node .claude/longrun/bin/longrun.mjs <コマンド
 
 - リポジトリの `CLAUDE.md` の決まりに従う。確認コマンド・テストの書き方・コミットの書き方はそこに書いてある
 - `main` と `main` には直接 push しない。force push もしない（hook が拒否する）
-- 自分ではマージしない。main 宛ての `claude/` の PR は、CI がすべて成功すると GitHub Actions（longrun-automerge）がマージする。エージェントは `longrun wait` で決着を待つ
+- 自分ではマージしない。main 宛ての `draft/` の PR は、CI がすべて成功すると GitHub Actions（longrun-automerge）がマージする。エージェントは `longrun wait` で決着を待つ
 - 1 つの PR は 1 つの issue だけを扱う。issue の範囲の外にある課題は直さず、`longrun spawn` で issue に起こす
 - 鍵やトークンを commit せず、ログにも出さない
 
@@ -26,15 +26,15 @@ GitHub の操作はすべて `node .claude/longrun/bin/longrun.mjs <コマンド
 3. 最新の main から作業ブランチを切る
    ```bash
    git fetch origin main
-   git switch -c claude/issue-<番号> origin/main
+   git switch -c draft/issue-<番号> origin/main
    ```
 4. issue を読んで実装する。新しい振る舞いにはテストを先に書く
 5. 確認コマンドを、すべてローカルで実行して通す。`.claude/longrun/config.json` の `verify` にあればそれを、なければ `CLAUDE.md` にある CI と同じ確認コマンドを使う
 6. サブエージェント `longrun-reviewer` に、issue の番号と本文を渡してレビューさせる。「直すべき」と言われた点は直し、5 からやり直す
 7. commit して作業ブランチを push し、PR を作る
    ```bash
-   git push -u origin claude/issue-<番号>
-   longrun pr --branch claude/issue-<番号> --title "<タイトル>" --body-file <本文のファイル>
+   git push -u origin draft/issue-<番号>
+   longrun pr --branch draft/issue-<番号> --title "<タイトル>" --body-file <本文のファイル>
    ```
    PR の本文には、何を・なぜ変えたか、どう確かめたか、置いた仮定を書く
 8. `longrun wait --pr <PR 番号>` を実行し、マージされるのを待つ（最大 9 分で返る）
