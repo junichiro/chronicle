@@ -1,7 +1,9 @@
 {
   "baseBranch": "main",
   "productionBranch": "main",
+  "headPrefix": "draft/",
   "ciWorkflows": ["CI"],
   "verify": ["pnpm run lint", "pnpm run build"],
-  "allow": ["Bash(pnpm install:*)"]
+  "allow": ["Bash(pnpm install:*)"],
+  "components": { "automerge": false }
 }
