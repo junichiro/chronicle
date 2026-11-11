@@ -19,7 +19,7 @@
       ],
       [
         "automerge",
-        true
+        false
       ]
     ],
     "verify": [
@@ -46,7 +46,6 @@
     ".claude/longrun/lib/routine-api.mjs": "c1bc67394b4f4196b392b93427cc3602b9def95ba027832f6694e2cae32df21d",
     ".claude/longrun/lib/rules.mjs": "f9806583bd66d91b370e74482fa2276f0bb9df1a446505756fee2e21d14e140b",
     ".claude/skills/longrun/SKILL.md": "7d8d8e2522b21dd20ee1da78c12a9056dff1956415bfaae8d2cad4fd5d91e4ce",
-    ".github/workflows/longrun-automerge.yml": "bc5569fcbaa24fb7ea8252dca845eb9767eb4ab363a4a65934eb4e65bd58ce4d",
     ".github/workflows/longrun-dispatch.yml": "0b4ae5bd1a16d2597e426800b0784ab045faa0779493fed76baaffe4cd373665",
     ".claude/longrun/VERSION": "26e0ab83aa1ff6bd0ae3882787a92663aa19db128e1241ffc99375fb9ca0c121"
   },
