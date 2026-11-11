@@ -38,6 +38,14 @@ ogImage: https://chronicle.junichiro.co.uk/assets/images/black-car-wash-polish-c
 | 細い円状の線傷 | ライトを中心に同心円状に光る | スワールマーク（洗車や拭き上げで少しずつ入った傷） | 研磨で浅くする |
 | 触るとザラつく | 見た目ではわかりにくい | 鉄粉（ブレーキダストや線路由来の鉄の粒が塗装に刺さったもの） | 鉄粉除去剤で溶かして落とす |
 
+
+実際の写真も載せておく。どちらも夜、スマホのライトを斜めに当てて撮った。
+
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px">
+  <figure style="margin:0"><img src="/assets/images/black-car-wash-polish-coating/ion-deposit.jpg" alt="フロントフェンダーに散らばる白い点状のイオンデポジット" loading="lazy"><figcaption style="font-size:0.85em">イオンデポジット。光の帯の中に、白い点や小さな輪っかが無数に浮かぶ。表面に乗っているだけなので、軽い研磨で落ちた</figcaption></figure>
+  <figure style="margin:0"><img src="/assets/images/black-car-wash-polish-coating/etching.jpg" alt="磨いたあとも残った、いびつな輪郭のエッチング" loading="lazy"><figcaption style="font-size:0.85em">エッチング。点々を磨き落としたあとも、いびつな輪郭のシミが数個残った。クリア層が凹んでいる</figcaption></figure>
+</div>
+
 ここで出てきた「クリア層」は、塗装のいちばん外側にある透明な層のことだ。色のついた層をこの透明な層が守っていて、磨くときに削っているのもこの層になる。
 
 ### シミができる場所には理由がある
@@ -68,6 +76,14 @@ ogImage: https://chronicle.junichiro.co.uk/assets/images/black-car-wash-polish-c
 | DeepBase | 研磨力が強めの下地処理剤。公式では2800番手ほど | 350ml 3,705円 |
 | BASE | 研磨力が弱めの下地処理剤。公式では8000番手。仕上げと、コーティング前の下地づくり | 350ml 3,705円 |
 
+
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px">
+  <figure style="margin:0;text-align:center"><img src="/assets/images/black-car-wash-polish-coating/product-deepbase.jpg" alt="DeepBase" loading="lazy" style="margin:0 auto"><figcaption style="font-size:0.85em">DeepBase</figcaption></figure>
+  <figure style="margin:0;text-align:center"><img src="/assets/images/black-car-wash-polish-coating/product-base.jpg" alt="BASE" loading="lazy" style="margin:0 auto"><figcaption style="font-size:0.85em">BASE</figcaption></figure>
+</div>
+
+<p style="font-size:0.8em">画像出典: ながら洗車 公式サイト（<a href="https://nagaracarwash.com/products/大容量-350ml-deep-base-頑固な水シミや小傷が取れない時の最後の砦">DeepBase</a>・<a href="https://nagaracarwash.com/products/coating-base-350">BASE</a>）</p>
+
 「番手」は研磨剤の粒の細かさを表す数字で、 **数字が小さいほど粒が粗く、よく削れる** 。紙やすりの番手と同じ考え方だ。DeepBase（2800番）で削って、BASE（8000番）で削り跡を整える、という順番になる。
 
 一般的には「コンパウンド」と呼ばれる研磨剤の仲間だ。粗目・中目・細目といった番手違いのセットで売られていることが多い。
@@ -83,6 +99,19 @@ ogImage: https://chronicle.junichiro.co.uk/assets/images/black-car-wash-polish-c
 | 阿修羅 | 濃色車向けの艶重視のコーティング | 7,410円 |
 | ファストガラス | DIY 向けのガラス系コーティング（BASE とのセット） | 9,263円 |
 | スノーコーティングバブル | 泡で吹き付けて使う、希釈タイプのコーティング剤 | 5,558円 |
+
+
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px">
+  <figure style="margin:0;text-align:center"><img src="/assets/images/black-car-wash-polish-coating/product-beginners-luck.jpg" alt="ビギナーズラック" loading="lazy" style="margin:0 auto"><figcaption style="font-size:0.85em">ビギナーズラック</figcaption></figure>
+  <figure style="margin:0;text-align:center"><img src="/assets/images/black-car-wash-polish-coating/product-shadow.jpg" alt="シャドウ" loading="lazy" style="margin:0 auto"><figcaption style="font-size:0.85em">シャドウ</figcaption></figure>
+  <figure style="margin:0;text-align:center"><img src="/assets/images/black-car-wash-polish-coating/product-silkment.jpg" alt="シルクメント" loading="lazy" style="margin:0 auto"><figcaption style="font-size:0.85em">シルクメント</figcaption></figure>
+  <figure style="margin:0;text-align:center"><img src="/assets/images/black-car-wash-polish-coating/product-plasma-alpha.jpg" alt="プラズマコーティングα" loading="lazy" style="margin:0 auto"><figcaption style="font-size:0.85em">プラズマコーティングα</figcaption></figure>
+  <figure style="margin:0;text-align:center"><img src="/assets/images/black-car-wash-polish-coating/product-ashura.jpg" alt="阿修羅" loading="lazy" style="margin:0 auto"><figcaption style="font-size:0.85em">阿修羅</figcaption></figure>
+  <figure style="margin:0;text-align:center"><img src="/assets/images/black-car-wash-polish-coating/product-fast-glass.jpg" alt="ファストガラス" loading="lazy" style="margin:0 auto"><figcaption style="font-size:0.85em">ファストガラス</figcaption></figure>
+  <figure style="margin:0;text-align:center"><img src="/assets/images/black-car-wash-polish-coating/product-snow-coating-bubble.jpg" alt="スノーコーティングバブル" loading="lazy" style="margin:0 auto"><figcaption style="font-size:0.85em">スノーコーティングバブル</figcaption></figure>
+</div>
+
+<p style="font-size:0.8em">画像出典: ながら洗車 公式サイト（<a href="https://nagaracarwash.com/products/ながら洗車-beginners-luck-350ml-日本で2番目に簡単なコーティング剤-軽度な水シミも同時に除去">ビギナーズラック</a>・<a href="https://nagaracarwash.com/products/coating-shadow-120">シャドウ</a>・<a href="https://nagaracarwash.com/products/ながら洗車-シルクメント-まるで-シルクのような滑りと艶の鎧-滑り性特化-コーティング-コーティング剤-車-自動車-簡易-撥水-はっ水ワックス-洗車用品-洗車ワックスのようなリキッド">シルクメント</a>・<a href="https://nagaracarwash.com/products/大容量-350ml-プラズマコーティングα-電撃走る-防汚性-犠牲膜で迷ったらコレ">プラズマコーティングα</a>・<a href="https://nagaracarwash.com/products/coating-ashura">阿修羅</a>・<a href="https://nagaracarwash.com/products/coating-fast">ファストガラス</a>・<a href="https://nagaracarwash.com/products/スノーコーティングバブル-500ml-触れないコーティングでスノません-スノーフォーム用シャンプー">スノーコーティングバブル</a>）</p>
 
 一般的には「簡易コーティング剤」「ガラス系コーティング剤」「ワックス」と呼ばれるものの仲間だ。スプレーして拭くだけの手軽なものから、下地処理と硬化時間が必要な本格的なものまで幅がある。
 
@@ -103,6 +132,14 @@ BASE は公式の表記でシリコーンレジン配合になっている。な
 | スノーバブル | 泡立ちと泡切れに特化。公式では「成分が残りにくい」 | 500ml 2,964円 |
 | スノーシャンプー | ココナッツオイル配合で、潤滑と保護の膜が残る。公式では1000〜2000倍まで薄めて使える | ミット付きセット 2,964円 |
 
+
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px">
+  <figure style="margin:0;text-align:center"><img src="/assets/images/black-car-wash-polish-coating/product-snow-bubble.jpg" alt="スノーバブル" loading="lazy" style="margin:0 auto"><figcaption style="font-size:0.85em">スノーバブル</figcaption></figure>
+  <figure style="margin:0;text-align:center"><img src="/assets/images/black-car-wash-polish-coating/product-snow-shampoo.jpg" alt="スノーシャンプー" loading="lazy" style="margin:0 auto"><figcaption style="font-size:0.85em">スノーシャンプー</figcaption></figure>
+</div>
+
+<p style="font-size:0.8em">画像出典: ながら洗車 公式サイト（<a href="https://nagaracarwash.com/products/スノーバブル-500ml-バブリーに洗車しよう-コピー">スノーバブル</a>・<a href="https://nagaracarwash.com/products/shampoo-snow-350">スノーシャンプー</a>）</p>
+
 同じシャンプーでも「何も残さない」ものと「膜を残す」ものがある。コーティングを塗る前は前者、普段の洗車は後者、というように使い分ける。
 
 使い分けにはもう一つ理由がある。噴霧器やフォームガンで泡を作る場合、スノーシャンプーのような薄めて使うタイプはかなり濃くしないと泡が立たない。そうなると「1000〜2000倍で安く使える」という長所が消える。だから、 **泡で洗うならスノーバブル、バケツとミットで洗うならスノーシャンプー** という使い分けになる。
@@ -114,6 +151,13 @@ BASE は公式の表記でシリコーンレジン配合になっている。な
 | 製品 | 特徴 | 価格 |
 |------|------|------|
 | IRON DELETE | 公式では「臭くない」鉄粉除去剤。原液〜10倍で噴霧器にも使え、別売りの専用パッドとの併用を推奨 | 500ml 2,964円 / パッドセット 5,558円 |
+
+
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px">
+  <figure style="margin:0;text-align:center"><img src="/assets/images/black-car-wash-polish-coating/product-iron-delete.jpg" alt="IRON DELETE" loading="lazy" style="margin:0 auto"><figcaption style="font-size:0.85em">IRON DELETE</figcaption></figure>
+</div>
+
+<p style="font-size:0.8em">画像出典: ながら洗車 公式サイト（<a href="https://nagaracarwash.com/products/shampoo-irondelete-set">IRON DELETE</a>）</p>
 
 一般的な鉄粉除去剤は、鉄粉に反応して紫色に変わり、独特の強い臭いがするものが多い。IRON DELETE は公式で「臭くない」とうたっている。屋外の洗車場で使うので、臭いが少ないならそれだけでありがたい。
 
